@@ -6,3 +6,4 @@ const router = Router();
 router.route("/resister").post(registerUser);
 
 export default router;
+ 
