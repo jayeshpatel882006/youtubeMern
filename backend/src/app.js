@@ -7,6 +7,7 @@ const app = express()
 app.use(cors({origin:"*"}))
 app.use(express.static("public"))
 app.use(cookaiParser())
+app.use(express.json());
 
 
 //Router Starrts From hear
