@@ -1,8 +1,9 @@
 import { app } from "./app.js";
 import connectToDb from "./db/Db.js";
-import dotenv from "dotenv"
 
-dotenv.config()
+import dotenv from "dotenv"
+dotenv.config();
+// import "dotenv/config";
 
 connectToDb()
 .then(()=>{
