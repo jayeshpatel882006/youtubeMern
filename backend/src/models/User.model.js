@@ -50,16 +50,18 @@ const userSchema  = new Schema(
     }
 )
 
-userSchema.pre("save" , async function(next){
-    if(!this.isModified()) return next();
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
 
-    this.password = await bcrypt.hash(this.password, 10);
-    next()
-}) //To Encrypt The PassWord When We Save the user for frist time or on Update time :)
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+}); //To Encrypt The PassWord When We Save the user for frist time or on Update time :)
 
-userSchema.methods.isPassWordCorrect = async function(password){
-    return await bcrypt.compare(password , this.password)
-}
+userSchema.methods.isPassWordCorrect = async function (password) {
+  console.log(password, this.password);
+
+  return await bcrypt.compare(password, this.password);
+};
 
 userSchema.methods.generateAccessToken = function(){
     return  jwt.sign(
