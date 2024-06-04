@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/User.model.js";
 import { uploadToCloudinary } from "../utils/cloudinery.js";
 import jtw from "jsonwebtoken";
+import mongoose from "mongoose";
 
 const generetAccessAndRefreshTokens = async (userId) => {
   try {
@@ -137,8 +138,8 @@ const logoutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
     req.user._id,
     {
-      $set: {
-        refreshToken: undefined,
+      $unset: {
+        refreshToken: 1, //this remove this field from document
       },
     },
     {
@@ -231,16 +232,20 @@ const chnageCurrentPassword = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Password changed Successfully"));
 });
 
-const getCurrentUsre = asyncHandler(async (req, res) => {
+const getCurrentUser = asyncHandler(async (req, res) => {
+  const currentUser = req.user;
+  if (!currentUser) {
+    throw new Apierror(200, "no Active/logedIn User");
+  }
   return res
     .status(200)
-    .json(ApiResponse(200, req.user, "Current user fetch successfully"));
+    .json(new ApiResponse(200, currentUser, "Current user fetch successfully"));
 });
 
 const updateUserDetails = asyncHandler(async (req, res) => {
   const { fullName, email } = req.body;
 
-  if (!fullName || !email) {
+  if (!(fullName, email)) {
     throw new Apierror(400, "email and fullname is required");
   }
 
@@ -253,7 +258,7 @@ const updateUserDetails = asyncHandler(async (req, res) => {
     {
       new: true,
     }
-  ).select("-password");
+  ).select("-password -refreshToken");
 
   return res
     .status(200)
@@ -282,7 +287,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     {
       new: true,
     }
-  ).select("-password");
+  ).select("-password -refreshToken");
 
   return res
     .status(200)
@@ -310,80 +315,130 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     {
       new: true,
     }
-  ).select("-password");
+  ).select("-password -refreshToken");
 
   return res.status(200).json(new ApiResponse(200, user, "Updated CoverImage"));
 });
 
 const getUserChannelProfile = asyncHandler(async (req, res) => {
-  const {username} = req.params;
+  const { username } = req.params;
   // const {username} = req.body;
 
   if (!username?.trim()) {
-    throw new Apierror(400 , "username is needed")
+    throw new Apierror(400, "username is needed");
   }
 
-  const channel =await User.aggregate([
+  const channel = await User.aggregate([
     {
-       $match:{
-        username : username?.toLowerCase()
-       }
+      $match: {
+        username: username?.toLowerCase(),
+      },
     },
     {
-      $lookup:{
-        from:"subscriptions",
-        localField:"_id",
-        foreignField:"channel",
-        as:"subscribers"
-      }
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "channel",
+        as: "subscribers",
+      },
     },
     {
-      $lookup:{
-        from:"subscriptions",
-        localField:"_id",
-        foreignField:"subscriber",
-        as:"subscribedTo"
-      }
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "subscriber",
+        as: "subscribedTo",
+      },
     },
     {
-      $addFields:{
-        subscriberCount :{
-          $size : "$subscribers"
+      $addFields: {
+        subscriberCount: {
+          $size: "$subscribers",
         },
-        channelSubscibedToCount:{
-          $size :"$subscribedTo"
+        channelSubscibedToCount: {
+          $size: "$subscribedTo",
         },
-        isSubscribed :{
-          $cond:{
-            if:{ $in : [req.user?._id , "$subscribers.subscriber"] },
-            then:true,
-            else:false
-          } 
-        }
-      }
+        isSubscribed: {
+          $cond: {
+            if: { $in: [req.user?._id, "$subscribers.subscriber"] },
+            then: true,
+            else: false,
+          },
+        },
+      },
     },
     {
-      $project:{
-        fullName:1,
-        username:1,
-        avatar:1,
-        coverImage:1,
-        isSubscribed:1,
-        channelSubscibedToCount:1,
-        subscriberCount:1,
-        email:1
-      }
-    }
-  ])
+      $project: {
+        fullName: 1,
+        username: 1,
+        avatar: 1,
+        coverImage: 1,
+        isSubscribed: 1,
+        channelSubscibedToCount: 1,
+        subscriberCount: 1,
+        email: 1,
+      },
+    },
+  ]);
 
-  console.log(channel);
-  
   if (!channel?.length) {
-    throw new Apierror(400,"Channel Dose NOt Exist")
+    throw new Apierror(400, "Channel Dose NOt Exist");
   }
 
-  return res.status(200).json(new ApiResponse(200 , channel[0],"user channel fetchd "))
+  return res
+    .status(200)
+    .json(new ApiResponse(200, channel[0], "user channel fetchd "));
+});
 
+const getWatchHistory = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(req.user._id),
+        },
+      },
+      {
+        $lookup: {
+          from: "videos",
+          localField: "watchHistory",
+          foreignField: "_id",
+          as: "watchHistory",
+          pipeline: [
+            {
+              $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "owner",
+                pipeline: [
+                  {
+                    $project: {
+                      fullName: 1,
+                      username: 1,
+                      avatar: 1,
+                    },
+                  },
+                ],
+              },
+            },
+            {
+              $addFields: {
+                owner: {
+                  $first: "$owner",
+                },
+              },
+            },
+          ],
+        },
+      },
+    ]);
+    return res
+      .status(200)
+      .json(new ApiResponse(200, user[0].watchHistory, "History Fetched"));
+  } catch (error) {
+    throw new Apierror(500, error.message || "Aggregaet Error userControler");
+  }
 });
 
 export {
@@ -392,13 +447,10 @@ export {
   logoutUser,
   refreshAccesToken,
   chnageCurrentPassword,
-  getCurrentUsre,
+  getCurrentUser,
   updateUserDetails,
   updateUserAvatar,
   updateUserCoverImage,
   getUserChannelProfile,
+  getWatchHistory,
 };
-
-// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjVkM2JjNzcwMmUxYzE3NDM0MWZiZmYiLCJpYXQiOjE3MTczODYyODEsImV4cCI6MTcxODI1MDI4MX0.tjI-VyAqWAy6A2Ett43cQqhydOpG8K4kwQ91vtaSJ9s
-
-// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjVkM2JjNzcwMmUxYzE3NDM0MWZiZmYiLCJpYXQiOjE3MTczODYyODEsImV4cCI6MTcxODI1MDI4MX0.tjI-VyAqWAy6A2Ett43cQqhydOpG8K4kwQ91vtaSJ9s
