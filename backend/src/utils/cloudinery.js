@@ -3,6 +3,7 @@ import fs from "fs";
 
 //I Added This dotenv hear because it give error when this is not present in this file
 import dotenv from "dotenv";
+import { log } from "console";
 dotenv.config();
 
 cloudinary.config({
@@ -32,4 +33,28 @@ const uploadToCloudinary = async (localFilePath) => {
   }
 };
 
-export { uploadToCloudinary };
+const deleteFromClodinery = async (publicId, type) => {
+  try {
+    if (!publicId) {
+      return console.log("Public id is required for deleting ");
+    }
+
+    if (type == "image") {
+      const res = await cloudinary.uploader.destroy(publicId, {
+        resource_type: "image",
+      });
+      console.log(res);
+    } else if (type == "video") {
+      const res = await cloudinary.uploader.destroy(publicId, {
+        resource_type: "video",
+      });
+      console.log(res);
+    }
+
+    console.log(publicId);
+  } catch (error) {
+    console.log("cloudinery deliting err : ", error);
+  }
+};
+
+export { uploadToCloudinary, deleteFromClodinery };

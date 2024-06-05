@@ -45,6 +45,11 @@ router
 router.route("/refreshtoken").post(refreshAccesToken);
 router.route("/channel/:username").get(verifyJwt, getUserChannelProfile);
 router.route("/history").get(verifyJwt, getWatchHistory);
+router.route("/checkTest").post(async (req, res) => {
+  const data = req.body;
+  console.log(data);
+  res.json({ data });
+});
 
 
 

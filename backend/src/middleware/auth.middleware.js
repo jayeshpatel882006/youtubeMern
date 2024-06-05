@@ -5,6 +5,9 @@ import { User } from "../models/User.model.js";
 
 export const verifyJwt = asyncHandler(async (req, res, next) => {
   try {
+    //decoding purpos
+
+    //decoding purpos
     const token =
       req.cookies?.accessToken ||
       req.header("Authorization")?.replace("Bearer ", "");
