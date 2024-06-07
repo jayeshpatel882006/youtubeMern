@@ -11,7 +11,7 @@ import {
 const check = asyncHandler(async (req, res) => {
   const data = req.body;
 
-  console.log(data);
+  // console.log(data);
 
   return res.json({
     data,
@@ -25,7 +25,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
 const publishAVideo = asyncHandler(async (req, res) => {
   const { title, description } = req.body;
-  console.log(title, description);
+  // console.log(title, description);
   // TODO: get video, upload to cloudinary, create video
   //   console.log(title, description);
   if (!title && !description) {
@@ -99,7 +99,60 @@ const getVideoById = asyncHandler(async (req, res) => {
     throw new Apierror(200, "VideoId Is required");
   }
 
-  const video = await Video.findById(videoId);
+  // const video = await Video.findById(videoId);
+  const video = await Video.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(videoId),
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "ChhannalDetail",
+        pipeline: [
+          {
+            $lookup: {
+              from: "subscriptions",
+              localField: "_id",
+              foreignField: "channel",
+              as: "subscribers",
+            },
+          },
+          {
+            $addFields: {
+              subscriberCount: {
+                $size: "$subscribers",
+              },
+            },
+          },
+          {
+            $project: {
+              fullName: 1,
+              username: 1,
+              avatar: 1,
+              subscriberCount: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $project: {
+        ChhannalDetail: 1,
+        createdAt: 1,
+        views: 1,
+        duration: 1,
+        videoFile: 1,
+        thubnail: 1,
+        title: 1,
+        description: 1,
+        isPublished: 1,
+      },
+    },
+  ]);
 
   if (video == null) {
     throw new Apierror(
@@ -107,8 +160,14 @@ const getVideoById = asyncHandler(async (req, res) => {
       "Video with this video id  was not found from database"
     );
   }
-
-  return res.status(200).json(new ApiResponse(200, video, "Video Fetchd"));
+  if (video[0].isPublished === true) {
+    return res.status(200).json(new ApiResponse(200, video, "Video Fetchd"));
+  } else {
+    // console.log(video);
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Video is not publishde yet"));
+  }
 });
 
 // const updateVideo = asyncHandler(async (req, res) => {
@@ -132,7 +191,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
   if (!deleted) {
     throw new Apierror(500, " video is not exist or deleted  ");
   }
-  console.log(deleted);
+  // console.log(deleted);
   let videopublicId = deleted?.videoFile.split("/").pop().split(".")[0];
   let thumbnailpublicId = deleted?.thubnail.split("/").pop().split(".")[0];
 

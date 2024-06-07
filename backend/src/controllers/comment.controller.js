@@ -1,0 +1,79 @@
+import mongoose from "mongoose";
+import { Comment } from "../models/comment.model.js";
+import { User } from "../models/User.model.js";
+import { Video } from "../models/Video.model.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { Apierror } from "../utils/ApiError.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+
+const getVideoComments = asyncHandler(async (req, res) => {
+  const { videoId } = req.params;
+  const { page = "1", limit = "5" } = req.query;
+
+  let PAGE = parseInt(page);
+  let LIMIT = parseInt(limit);
+  if (!videoId) {
+    throw new Apierror(400, "VideoId required to get video's comments");
+  }
+  const offset = (PAGE - 1) * LIMIT;
+
+  let commnts = await Comment.find({ video: videoId })
+    .skip(offset)
+    .limit(LIMIT)
+    .select("content");
+
+  if (!commnts || commnts == null || commnts.length == 0) {
+    return res
+      .status(500)
+      .json(new ApiResponse(200, commnts, "Comments not found in this video"));
+  }
+  return res
+    .status(200)
+    .json(new ApiResponse(200, commnts, "Comments Fetchd SuccessFully"));
+});
+
+const addComments = asyncHandler(async (req, res) => {
+  const { videoId } = req.params;
+  const { content } = req.body;
+  let user = req.user._id.toString();
+  if (!videoId) {
+    throw new Apierror(400, "Video Id is needed");
+  }
+  if (!content || content.length == 0) {
+    throw new Apierror(200, "comment can't be empty");
+  }
+
+  // const comment = await Comment.findById(videoId);
+  const comment = await Comment.create({
+    owner: user,
+    video: videoId,
+    content,
+  });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, comment, "Comment added Successfully"));
+});
+const deleteComment = asyncHandler(async (req, res) => {
+  const { commentId } = req.params;
+  if (!commentId) {
+    throw new Apierror(200, "comment can't be empty");
+  }
+  let user = req.user._id.toString();
+  let isMadeByUser = await Comment.findById(commentId);
+
+  if (isMadeByUser.owner.toString() !== user) {
+    throw new Apierror(
+      200,
+      "this is not your comment ,you can only delete your comment"
+    );
+  }
+
+  let deleetComment = await Comment.deleteOne({ _id: commentId });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, deleetComment, "Comment deleted Successfully"));
+});
+
+export { getVideoComments, addComments, deleteComment };
