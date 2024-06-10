@@ -5,6 +5,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/User.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Video } from "../models/Video.model.js";
+import { Playlist } from "../models/playlist.model.js";
 
 const router = Router();
 
@@ -24,6 +25,12 @@ router.route("/getvideo").get(
     const users = await Video.find();
 
     res.status(200).json(new ApiResponse(200, users, "All Video  Fetchd"));
+  })
+);
+router.route("/getplaylist").get(
+  asyncHandler(async (req, res) => {
+    const playlist = await Playlist.find();
+    res.status(200).json(new ApiResponse(200, playlist, "All playlist found"));
   })
 );
 

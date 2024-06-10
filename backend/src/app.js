@@ -16,6 +16,8 @@ import UserRouter from "./routes/user.routes.js";
 import VideoRouter from "./routes/video.routes.js";
 import SubscriptionRouter from "./routes/subscription.routes.js";
 import CommentRouter from "./routes/comment.routes.js";
+import PlaylistRouter from "./routes/playlist.routes.js";
+import LikeRouter from "./routes/like.routes.js";
 import helthCheck from "./routes/helthCheck.routes.js";
 //user Of Route
 app.use("/check", helthCheck);
@@ -23,6 +25,8 @@ app.use("/api/v1/users", UserRouter);
 app.use("/api/v1/video", VideoRouter);
 app.use("/api/v1/subscriptions", SubscriptionRouter);
 app.use("/api/v1/comment", CommentRouter);
+app.use("/api/v1/playlist", PlaylistRouter);
+app.use("/api/v1/like", LikeRouter);
 
 export { app };
 

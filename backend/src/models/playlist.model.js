@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-const playlistSchema = new mongoose.Schema(
+const playlistSchema = new Schema(
   {
     name: {
       type: String,
@@ -8,7 +8,6 @@ const playlistSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      requird: true,
     },
     videos: [
       {
