@@ -93,6 +93,7 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
+  // console.log(req.body);
   const { email, password, username } = req.body;
 
   if (!email && !username) {
@@ -129,6 +130,7 @@ const loginUser = asyncHandler(async (req, res) => {
         200,
         {
           user: user,
+          token: generatedaccessToken,
         },
         "User Logedin Successfully"
       )

@@ -6,6 +6,8 @@ import dotenv from "dotenv";
 import { log } from "console";
 dotenv.config();
 
+
+//I Used jayeshwatchface(github account) to login in cloudinwry
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
   api_key: process.env.CLOUDINARY_KEY,

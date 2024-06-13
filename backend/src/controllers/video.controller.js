@@ -21,6 +21,72 @@ const check = asyncHandler(async (req, res) => {
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
   //TODO: get all videos based on query, sort, pagination
+const pageNum = parseInt(page, 10);
+const limitNum = parseInt(limit, 10);
+
+let filter = {};
+if (query) {
+  filter.title = { $regex: query, $options: "i" };
+}
+if (userId) {
+  // If userId is provided, add a filter to match the owner field to the provided userId
+  filter.owner = new mongoose.Types.ObjectId(userId);
+}
+
+let sort = {};
+if (sortBy && (sortType === "desc" || sortType === "asc")) {
+  sort[sortBy] = sortType === "desc" ? -1 : 1;
+}
+
+// let videos = await Video.find(filter)
+//   .sort(sort)
+//   .skip((pageNum - 1) * limitNum)
+//   .limit(limitNum);
+
+let videos = await Video.aggregate([
+  { $match: filter },
+  // { $sort: sort },
+  { $skip: (pageNum - 1) * limitNum },
+  { $limit: limit },
+  {
+    $lookup: {
+      from: "users", // The collection to join with
+      localField: "owner", // Field from the Video collection
+      foreignField: "_id", // Field from the User collection
+      as: "owner",
+      pipeline: [
+        {
+          $project: {
+            avatar: 1,
+            email: 1,
+            username: 1,
+          },
+        },
+      ],
+    },
+  },
+  {
+    $unwind: "$owner",
+  },
+  {
+    $project: {
+      _id: 1,
+      videoFile: 1,
+      thubnail: 1,
+      title: 1,
+      description: 1,
+      duration: 1,
+      views: 1,
+      isPublished: 1,
+      createdAt: 1,
+      updatedAt: 1,
+      owner: 1,
+    },
+  },
+]);
+// console.log({ filter, sort, videos });
+
+return res.status(200).json(new ApiResponse(200, videos, "Video Fetchd"));
 });
 
 const publishAVideo = asyncHandler(async (req, res) => {
