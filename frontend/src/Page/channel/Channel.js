@@ -10,6 +10,7 @@ const Channel = () => {
   const context = useContext(Mycontext);
   const [channel, setChannel] = useState();
   let [backImg, setBackImg] = useState();
+  let [isSubscribed, setIsSubscribed] = useState();
 
   //   console.log(channel);
 
@@ -43,9 +44,12 @@ const Channel = () => {
           },
         }
       );
-      console.log(response.data);
-      setChannel(response.data.data);
-      setBackImg(response.data.data.coverImage);
+      if (response.data.success == true) {
+        // console.log(response.data);
+        setChannel(response.data.data);
+        setBackImg(response.data.data.coverImage);
+        setIsSubscribed(response.data.data.isSubscribed);
+      }
     } catch (error) {
       if (error.response) {
         console.log(error.response.data);
@@ -54,6 +58,65 @@ const Channel = () => {
       }
     }
   };
+
+  const toggalSubscribeChannel = async () => {
+    // console.log(channel._id);
+    let channelId = channel._id;
+    try {
+      let response = await axios.post(
+        `${process.env.REACT_APP_SITE}api/v1/subscriptions/c/${channelId}`,
+        {},
+        {
+          headers: {
+            Authorization: context.userToken,
+          },
+        }
+      );
+      if (response.data.success == true) {
+        setIsSubscribed(!isSubscribed);
+        // console.log(response.data);
+        getSubscriber(channelId);
+        // setChannel(response.data.data);
+        // setBackImg(response.data.data.coverImage);
+        // setIsSubscribed(response.data.data.isSubscribed);
+      }
+    } catch (error) {
+      setIsSubscribed(isSubscribed);
+      if (error.response) {
+        console.log(error.response.data);
+      } else {
+        console.log(error);
+      }
+    }
+  };
+
+  const getSubscriber = async (channelId) => {
+    try {
+      let response = await axios.get(
+        `${process.env.REACT_APP_SITE}api/v1/subscriptions/c/${channelId}`,
+        {
+          headers: {
+            Authorization: context.userToken,
+          },
+        }
+      );
+      if (response.data.success == true) {
+        // setIsSubscribed(!isSubscribed);
+        // console.log(response.data.message);
+        // console.log(channel);
+
+        setChannel({ ...channel, subscriberCount: response.data.message });
+      }
+    } catch (error) {
+      setIsSubscribed(isSubscribed);
+      if (error.response) {
+        console.log(error.response.data);
+      } else {
+        console.log(error);
+      }
+    }
+  };
+
   return (
     <>
       {channel && (
@@ -61,7 +124,7 @@ const Channel = () => {
           <div className="w-full">
             <img
               className="w-full p-3 rounded-3xl h-[250px] object-cover"
-              src={channel?.coverImage}
+              src={backImg}
               onError={() =>
                 setBackImg(
                   "https://yt3.googleusercontent.com/q7BE5w-MYDJyTMQWKwVmp98JvU7WqEzd99W-7I8CwJM3ixt-sQEeEKtlp1Xnho-42TCOsQt2=w2120-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj"
@@ -71,16 +134,18 @@ const Channel = () => {
             />
           </div>
           <div className="channelHeader mt-3 ml-4">
-            <div className="channeldescription flex items-center">
+            <div className="channeldescription flex gap-6 items-center">
               <div className="flex flex-col justify-center gap-3 ">
                 <img
                   className="h-[160px]   mr-3 w-[160px] rounded-full"
                   src={channel?.avatar}
                 />
-                {channel?.isSubscribed == false ? (
+                {isSubscribed == false ? (
                   <Button
+                    onClick={() => toggalSubscribeChannel()}
                     style={{
                       background: "red",
+                      fontWeight: "bold",
                       color: "#fff",
                       borderRadius: "30px",
                     }}
@@ -89,8 +154,10 @@ const Channel = () => {
                   </Button>
                 ) : (
                   <Button
+                    onClick={() => toggalSubscribeChannel()}
                     style={{
                       background: "white",
+                      fontWeight: "bold",
                       color: "#000",
                       borderRadius: "30px",
                     }}
@@ -100,7 +167,7 @@ const Channel = () => {
                 )}
               </div>
 
-              <div className="flex flex-col items-center justify-start">
+              <div className="flex flex-col  justify-start">
                 <h1 className="text-4xl  font-bold"> {channel?.fullName}</h1>
                 <h1 className="text-xl  ">
                   @{channel?.username}{" "}

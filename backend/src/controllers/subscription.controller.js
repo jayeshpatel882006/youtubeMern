@@ -91,6 +91,9 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
       },
     },
     {
+      $unwind: "$subscribers",
+    },
+    {
       $project: {
         subscribers: 1,
         _id: 0,
@@ -101,15 +104,7 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
     throw new Apierror(404, "we need Channel id to find its subscriber ");
   }
   //   console.log(channel.length);
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        channel,
-        ` All SubScriber found, number of subscriber : ${channel.length}.`
-      )
-    );
+  return res.status(200).json(new ApiResponse(200, channel, channel.length));
 });
 
 // controller to return channel list to which user has subscribed
@@ -156,6 +151,9 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
       },
     },
     {
+      $unwind: "$channels",
+    },
+    {
       $project: {
         channels: 1,
         _id: 0,
@@ -164,12 +162,13 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
   ]);
 
   // console.log(user);
+  let result = channels.map((ite) => ite.channels);
   res
     .status(200)
     .json(
       new ApiResponse(
         200,
-        channels,
+        result,
         `All subscribed channel found of user ${req.user.username}`
       )
     );

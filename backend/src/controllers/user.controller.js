@@ -2,7 +2,10 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { Apierror } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/User.model.js";
-import { uploadToCloudinary } from "../utils/cloudinery.js";
+import {
+  deleteFromClodinery,
+  uploadToCloudinary,
+} from "../utils/cloudinery.js";
 import jtw from "jsonwebtoken";
 import mongoose from "mongoose";
 
@@ -221,9 +224,9 @@ const chnageCurrentPassword = asyncHandler(async (req, res) => {
 
   const user = await User.findById(req.user._id);
 
-  const isPassCorrect = user.isPassWordCorrect(oldPassword);
+  const isPassCorrect = await user.isPassWordCorrect(oldPassword);
 
-  if (!isPassCorrect) {
+  if (!isPassCorrect && isPassCorrect == false) {
     throw new Apierror(400, "old password is incorrect");
   }
 
@@ -232,7 +235,7 @@ const chnageCurrentPassword = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, {}, "Password changed Successfully"));
+    .json(new ApiResponse(200, user, "Password changed Successfully"));
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {
@@ -282,15 +285,13 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
       "Error while uploading Avatar to cloudinary while updating it "
     );
   }
-  const user = await User.findByIdAndUpdate(
-    req.user._id,
-    {
-      $set: { avatar: avatar.url },
-    },
-    {
-      new: true,
-    }
-  ).select("-password -refreshToken");
+  const user = await User.findByIdAndUpdate(req.user._id, {
+    $set: { avatar: avatar.url },
+  }).select("-password -refreshToken"); //hear i deleted the {new : true} so the older one is can be deletede
+
+  let userimageId = user?.avatar.split("/").pop().split(".")[0];
+
+  await deleteFromClodinery(userimageId, "image");
 
   return res
     .status(200)
@@ -314,11 +315,15 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     req.user._id,
     {
       $set: { coverImage: cover.url },
-    },
-    {
-      new: true,
     }
-  ).select("-password -refreshToken");
+    // {
+    //   new: true,
+    // }
+  ).select("-password -refreshToken"); //hear i deleted the {new : true} so the older one is can be deletede
+
+  let coverimageId = user?.avatar.split("/").pop().split(".")[0];
+
+  await deleteFromClodinery(coverimageId, "image");
 
   return res.status(200).json(new ApiResponse(200, user, "Updated CoverImage"));
 });

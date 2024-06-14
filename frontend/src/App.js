@@ -9,24 +9,29 @@ import VideoDisplay from "./Page/videoDisplay/VideoDisplay";
 import Home from "./Page/Home/Home";
 import axios from "axios";
 import Channel from "./Page/channel/Channel";
+import Subscription from "./Page/Subscription/Subscription";
+import Setting from "./Page/setting/Setting";
 
 const Mycontext = createContext();
 
 function App() {
-  const [isLogedin, setIsLogedin] = useState(false);
+  let id = window.localStorage.getItem("_id");
+  const [isLogedin, setIsLogedin] = useState(
+    id?.length !== 0 && id !== null ? true : false
+  );
   const [userToken, setToken] = useState(localStorage.getItem("token"));
   const [user, setUser] = useState();
   const [showHeaderFooter, setShowHeaderFooter] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    let id = window.localStorage.getItem("_id");
+    // let id = window.localStorage.getItem("_id");
     setToken(localStorage.getItem("token"));
-    console.log(id);
+    // console.log(id);
     if (id !== null && id.length !== 0) {
-      setIsLogedin(true);
       fetchCurrentUser();
-      return navigate("/");
+      return setIsLogedin(true);
+      //  navigate("/");
     } else if (isLogedin == false) {
       navigate("/auth/login");
       setToken("");
@@ -46,7 +51,7 @@ function App() {
           },
         }
       );
-      // console.log(user.data.data);
+      console.log(user.data.data);
       setUser(user.data.data);
     } catch (error) {
       if (error.response) {
@@ -79,6 +84,7 @@ function App() {
     isLogedin,
     userToken,
     user,
+    fetchCurrentUser,
     handalLogin,
     setIsLogedin,
     handalLogout,
@@ -95,6 +101,12 @@ function App() {
           <Route exact={true} path="/" element={<Home />} />
           <Route exact={true} path="/auth/login" element={<LoginSignup />} />
           <Route exact={true} path="/video/:id" element={<VideoDisplay />} />
+          <Route exact={true} path="/user/setting" element={<Setting />} />
+          <Route
+            exact={true}
+            path="/user/subscription"
+            element={<Subscription />}
+          />
           <Route
             exact={true}
             path="/channel/:channelId"

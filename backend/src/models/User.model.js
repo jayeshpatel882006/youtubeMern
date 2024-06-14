@@ -58,7 +58,7 @@ userSchema.pre("save", async function (next) {
 }); //To Encrypt The PassWord When We Save the user for frist time or on Update time :)
 
 userSchema.methods.isPassWordCorrect = async function (password) {
-  console.log(password, this.password);
+  //   console.log(await bcrypt.compare(password, this.password));
 
   return await bcrypt.compare(password, this.password);
 };
