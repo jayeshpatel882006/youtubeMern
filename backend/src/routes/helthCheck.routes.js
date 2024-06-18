@@ -9,29 +9,28 @@ import { Playlist } from "../models/playlist.model.js";
 
 const router = Router();
 
-router.use(verifyJwt);
+// router.use(verifyJwt);
 
-router.route("/getuser").get(
+router.route("/getuser").get(verifyJwt,
   asyncHandler(async (req, res) => {
-    const users = await User.find().select(
-      "username email fullName avatar coverImage"
-    );
+    const users = await User.find()
 
     res.status(200).json(new ApiResponse(200, users, "All User Fetchd"));
   })
 );
-router.route("/getvideo").get(
+router.route("/getvideo").get(verifyJwt,
   asyncHandler(async (req, res) => {
     const users = await Video.find();
 
     res.status(200).json(new ApiResponse(200, users, "All Video  Fetchd"));
   })
 );
-router.route("/getplaylist").get(
+router.route("/getplaylist").get(verifyJwt,
   asyncHandler(async (req, res) => {
     const playlist = await Playlist.find();
     res.status(200).json(new ApiResponse(200, playlist, "All playlist found"));
   })
 );
+
 
 export default router;

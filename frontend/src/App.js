@@ -11,6 +11,7 @@ import axios from "axios";
 import Channel from "./Page/channel/Channel";
 import Subscription from "./Page/Subscription/Subscription";
 import Setting from "./Page/setting/Setting";
+import Activity from "./Page/Activity/Activity";
 
 const Mycontext = createContext();
 
@@ -20,6 +21,9 @@ function App() {
     id?.length !== 0 && id !== null ? true : false
   );
   const [userToken, setToken] = useState(localStorage.getItem("token"));
+  const [refreshToken, setRefreshToken] = useState(
+    localStorage.getItem("refreshToken")
+  );
   const [user, setUser] = useState();
   const [showHeaderFooter, setShowHeaderFooter] = useState(true);
   const navigate = useNavigate();
@@ -27,7 +31,9 @@ function App() {
   useEffect(() => {
     // let id = window.localStorage.getItem("_id");
     setToken(localStorage.getItem("token"));
+    setRefreshToken(localStorage.getItem("refreshToken"));
     // console.log(id);
+
     if (id !== null && id.length !== 0) {
       fetchCurrentUser();
       return setIsLogedin(true);
@@ -41,6 +47,32 @@ function App() {
 
   // }, []);
 
+  const UPDATErefreshToken = async () => {
+    try {
+      let res = await axios.post(
+        `${process.env.REACT_APP_SITE}api/v1/users/refreshtoken`,
+        {
+          refreshToken: refreshToken,
+        }
+      );
+      // console.log("UPDATEREFRESHTOKEN ", res.data.data);
+      if (res.data.data) {
+        localStorage.setItem("refreshToken", res.data.data.refreshToken);
+        console.log(res.data.data.refreshToken, res.data.data.user);
+        setRefreshToken(res.data.data.refreshToken);
+        setUser(res.data.data.user);
+        setToken(res.data.data.accessToken);
+        // fetchCurrentUser();
+      }
+    } catch (err) {
+      if (err.response) {
+        console.log(err.response.data);
+      } else {
+        console.log(err);
+      }
+    }
+  };
+
   const fetchCurrentUser = async () => {
     try {
       let user = await axios.get(
@@ -51,10 +83,14 @@ function App() {
           },
         }
       );
-      console.log(user.data.data);
+      // console.log(user.data.data);
       setUser(user.data.data);
     } catch (error) {
       if (error.response) {
+        ////geahuihik
+        if (error.response.data.message == "jwt expired") {
+          UPDATErefreshToken();
+        }
         console.log(error.response.data);
       } else {
         console.log(error);
@@ -66,6 +102,7 @@ function App() {
     setIsLogedin(false);
     window.localStorage.removeItem("_id");
     window.localStorage.removeItem("token");
+    window.localStorage.removeItem("refreshToken");
 
     setToken("");
     navigate("/auth/login");
@@ -76,6 +113,7 @@ function App() {
     console.log(data.user);
     setUser(data.user);
     window.localStorage.setItem("_id", data.user._id);
+    window.localStorage.setItem("refreshToken", data.user.refreshToken);
     window.localStorage.setItem("token", data.token);
     setShowHeaderFooter(true);
   };
@@ -102,6 +140,7 @@ function App() {
           <Route exact={true} path="/auth/login" element={<LoginSignup />} />
           <Route exact={true} path="/video/:id" element={<VideoDisplay />} />
           <Route exact={true} path="/user/setting" element={<Setting />} />
+          <Route exact={true} path="/user/activity" element={<Activity />} />
           <Route
             exact={true}
             path="/user/subscription"

@@ -41,34 +41,37 @@ const Subscription = () => {
   const toggalSubscribeChannel = async (channelId, name) => {
     // console.log(channel._id);
     // let channelId = channel._id;
-    alert(`Are You want to UnSunscribe ${name}`);
-    // try {
-    //   let response = await axios.post(
-    //     `${process.env.REACT_APP_SITE}api/v1/subscriptions/c/${channelId}`,
-    //     {},
-    //     {
-    //       headers: {
-    //         Authorization: context.userToken,
-    //       },
-    //     }
-    //   );
-    //   if (response.data.success == true) {
-    //     // setIsSubscribed(!isSubscribed);
-    //     console.log(response.data);
-    //     fetchChannel();
-    //     // getSubscriber(channelId);
-    //     // setChannel(response.data.data);
-    //     // setBackImg(response.data.data.coverImage);
-    //     // setIsSubscribed(response.data.data.isSubscribed);
-    //   }
-    // } catch (error) {
-    // //   setIsSubscribed(isSubscribed);
-    //   if (error.response) {
-    //     console.log(error.response.data);
-    //   } else {
-    //     console.log(error);
-    //   }
-    // }
+    // confirm(`Are You want to UnSunscribe ${name}`);
+    if (confirm(`Are You want to UnSunscribe ${name}`) == true) {
+      // console.log("You pressed OK!");
+      try {
+        let response = await axios.post(
+          `${process.env.REACT_APP_SITE}api/v1/subscriptions/c/${channelId}`,
+          {},
+          {
+            headers: {
+              Authorization: context.userToken,
+            },
+          }
+        );
+        if (response.data.success == true) {
+          // setIsSubscribed(!isSubscribed);
+          console.log(response.data);
+          fetchChannel();
+          // getSubscriber(channelId);
+          // setChannel(response.data.data);
+          // setBackImg(response.data.data.coverImage);
+          // setIsSubscribed(response.data.data.isSubscribed);
+        }
+      } catch (error) {
+        //   setIsSubscribed(isSubscribed);
+        if (error.response) {
+          console.log(error.response.data);
+        } else {
+          console.log(error);
+        }
+      }
+    }
   };
 
   return (

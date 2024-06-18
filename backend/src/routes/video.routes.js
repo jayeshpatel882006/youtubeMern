@@ -9,12 +9,14 @@ import {
   // updateVideo,
   publishAVideo,
   check,
+  addView,
+  getCountofVideoofUser,
+  updateThumbnail,
 } from "../controllers/video.controller.js";
 
 const router = Router();
 
 router.use(verifyJwt);
-
 
 router.route("/").get(getAllVideos);
 router.route("/upload").post(
@@ -31,7 +33,11 @@ router.route("/upload").post(
   publishAVideo
 );
 router.route("/deleteVideo/:videoId").delete(deleteVideo);
-router.route("/getVideo/:videoId").get(getVideoById);
+router
+  .route("/updateThumbnail/:videoId")
+  .patch(upload.single("thubnail"), updateThumbnail);
+router.route("/getVideo/:videoId").get(getVideoById).post(addView);
 router.route("/toggalPublish/:videoId").post(togglePublishStatus);
+router.route("/getvideocount/:userId").get(getCountofVideoofUser);
 
 export default router;

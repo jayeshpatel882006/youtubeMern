@@ -133,6 +133,46 @@ const Setting = () => {
     }
   };
 
+  const handelChnageDetails = async (e) => {
+    e.preventDefault();
+    if (details.email.length == 0 && details.fullname.length == 0) {
+      alert(
+        "Please add email and fullname. if you want to remail than write it again"
+      );
+      return;
+    }
+    const formData = new FormData();
+    formData.append("fullName", details.fullname);
+    formData.append(" email", details.email);
+    try {
+      let response = await axios.patch(
+        `${process.env.REACT_APP_SITE}api/v1/users/updateuserdetails`,
+        {
+          fullName: details.fullname,
+          email: details.email,
+        },
+        {
+          headers: {
+            Authorization: context.userToken,
+          },
+        }
+      );
+      if (response.data.success == true) {
+        // console.log(response.data);
+        alert("Detals  Updated Successfully");
+        setDetailmodel(false);
+        context.fetchCurrentUser();
+      }
+    } catch (error) {
+      if (error.response) {
+        console.log(error.response.data);
+        alert(error.response.data.message);
+      } else {
+        console.log(error);
+      }
+    }
+  };
+
   return (
     <div className="container  mx-auto bg-gray-800 rounded-lg p-3">
       <h2>Setting</h2>
@@ -503,115 +543,115 @@ const Setting = () => {
             }}
           >
             Change Details
-            {/* <!-- Main modal --> */}
+          </Button>
+          {/* <!-- Main modal --> */}
+          <div
+            className={`${
+              detailModel == true ? "block" : "hidden"
+            } flex  fixed  top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-full max-h-full`}
+          >
+            {/* <!--backDrop--!> */}
             <div
-              className={`${
-                detailModel == true ? "block" : "hidden"
-              } flex  fixed  top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-full max-h-full`}
-            >
-              {/* <!--backDrop--!> */}
-              <div
-                id="authentication-modal"
-                tabIndex="-1"
-                className="bg-gray-800 opacity-[0.9] fixed w-full md:inset-0 h-full  "
-                aria-hidden="true"
-              />
-              <div className="relative mx-auto p-4 w-full max-w-md max-h-full">
-                {/* <!-- Modal content --> */}
-                <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                  {/* <!-- Modal header --> */}
-                  <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                      Change Details
-                    </h3>
-                    <button
-                      onClick={() => setDetailmodel(false)}
-                      className="end-2.5  text-gray-400 bg-transparent hover:bg-gray-900 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                      //   data-modal-hide="authentication-modal"
+              id="authentication-modal"
+              tabIndex="-1"
+              className="bg-gray-800 opacity-[0.9] fixed w-full md:inset-0 h-full  "
+              aria-hidden="true"
+            />
+            <div className="relative mx-auto p-4 w-full max-w-md max-h-full">
+              {/* <!-- Modal content --> */}
+              <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                {/* <!-- Modal header --> */}
+                <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    Change Details
+                  </h3>
+                  <button
+                    onClick={() => setDetailmodel(false)}
+                    className="end-2.5  text-gray-400 bg-transparent hover:bg-gray-900 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                    //   data-modal-hide="authentication-modal"
+                  >
+                    <svg
+                      className="w-3 h-3"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 14 14"
                     >
-                      <svg
-                        className="w-3 h-3"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 14 14"
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                      />
+                    </svg>
+                    <span className="sr-only">Close modal</span>
+                  </button>
+                </div>
+                {/* <!-- Modal body --> */}
+                <div className="p-4 md:p-5">
+                  <form
+                    className="space-y-4"
+                    onSubmit={(e) => handelChnageDetails(e)}
+                  >
+                    <div>
+                      <label
+                        htmlFor="email"
+                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                       >
-                        <path
-                          stroke="currentColor"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                        />
-                      </svg>
-                      <span className="sr-only">Close modal</span>
-                    </button>
-                  </div>
-                  {/* <!-- Modal body --> */}
-                  <div className="p-4 md:p-5">
-                    <form
-                      className="space-y-4"
-                      onSubmit={(e) => handelChnageDetails(e)}
-                    >
-                      <div>
-                        <label
-                          htmlFor="email"
-                          className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          Email
-                        </label>
-                        <input
-                          type="email"
-                          name="email"
-                          autoComplete="true"
-                          id="email"
-                          onChange={(e) =>
-                            setDetails({
-                              ...details,
-                              email: e.target.value,
-                            })
-                          }
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                          placeholder="enter new Email"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label
-                          htmlFor="fullName"
-                          className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          Fullname
-                        </label>
-                        <input
-                          type="text"
-                          name="fullName"
-                          autoComplete="true"
-                          id="fullName"
-                          onChange={(e) =>
-                            setDetails({
-                              ...details,
-                              fullname: e.target.value,
-                            })
-                          }
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                          placeholder="••••••••"
-                          required
-                        />
-                      </div>
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        autoComplete="true"
+                        id="email"
+                        onChange={(e) =>
+                          setDetails({
+                            ...details,
+                            email: e.target.value,
+                          })
+                        }
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                        placeholder="enter new Email"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="fullName"
+                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                      >
+                        Fullname
+                      </label>
+                      <input
+                        type="text"
+                        name="fullName"
+                        autoComplete="true"
+                        id="fullName"
+                        onChange={(e) =>
+                          setDetails({
+                            ...details,
+                            fullname: e.target.value,
+                          })
+                        }
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                        placeholder="••••••••"
+                        required
+                      />
+                    </div>
 
-                      <button
-                        type="submit"
-                        className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                      >
-                        Change Details
-                      </button>
-                    </form>
-                  </div>
+                    <button
+                      type="submit"
+                      className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    >
+                      Change Details
+                    </button>
+                  </form>
                 </div>
               </div>
             </div>
-          </Button>
+          </div>
         </div>
       </div>
     </div>

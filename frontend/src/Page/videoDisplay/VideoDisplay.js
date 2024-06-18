@@ -1,5 +1,5 @@
 import { Button } from "@mui/material";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { Mycontext } from "../../App";
@@ -7,9 +7,11 @@ import { formatDistanceToNow } from "date-fns";
 
 const VideoDisplay = () => {
   let { id } = useParams();
+  const videoEl = useRef(null);
+
   const context = useContext(Mycontext);
   const [video, setVideo] = useState();
-  console.log(id);
+  // console.log(id);
   const subVideo = [
     {
       name: "amezing video on entier pateltube",
@@ -109,60 +111,60 @@ const VideoDisplay = () => {
     },
   ];
 
-  const response = {
-    statusCode: 200,
-    data: [
-      {
-        _id: "66602a90cbb536a3ddcb99ef",
-        videoFile:
-          "http://res.cloudinary.com/dygl9cjyd/video/upload/v1717578382/uyjcbuo6ylxn8kweuc1o.mp4",
-        thubnail:
-          "http://res.cloudinary.com/dygl9cjyd/image/upload/v1717578383/r98lvufhxoqxudfjx586.jpg",
-        title: "amezing Video",
-        description: "this is amezing video website",
-        duration: 8.2,
-        views: 110,
-        isPublished: true,
-        createdAt: "2024-06-05T09:06:24.408Z",
-        ChhannalDetail: [
-          {
-            _id: "665d3bc7702e1c174341fbff",
-            username: "jayu",
-            fullName: "jayuPatel",
-            avatar:
-              "http://res.cloudinary.com/dygl9cjyd/image/upload/v1718084531/smmvmyljyips81h1rhpa.png",
-            subscriberCount: 2,
-          },
-        ],
-      },
-    ],
-    message: "Video Fetchd",
-    success: true,
-  };
+  // const response = {
+  //   statusCode: 200,
+  //   data: [
+  //     {
+  //       _id: "66602a90cbb536a3ddcb99ef",
+  //       videoFile:
+  //         "http://res.cloudinary.com/dygl9cjyd/video/upload/v1717578382/uyjcbuo6ylxn8kweuc1o.mp4",
+  //       thubnail:
+  //         "http://res.cloudinary.com/dygl9cjyd/image/upload/v1717578383/r98lvufhxoqxudfjx586.jpg",
+  //       title: "amezing Video",
+  //       description: "this is amezing video website",
+  //       duration: 8.2,
+  //       views: 110,
+  //       isPublished: true,
+  //       createdAt: "2024-06-05T09:06:24.408Z",
+  //       ChhannalDetail: [
+  //         {
+  //           _id: "665d3bc7702e1c174341fbff",
+  //           username: "jayu",
+  //           fullName: "jayuPatel",
+  //           avatar:
+  //             "http://res.cloudinary.com/dygl9cjyd/image/upload/v1718084531/smmvmyljyips81h1rhpa.png",
+  //           subscriberCount: 2,
+  //         },
+  //       ],
+  //     },
+  //   ],
+  //   message: "Video Fetchd",
+  //   success: true,
+  // };
 
-  let i = {
-    _id: "66602a90cbb536a3ddcb99ef",
-    videoFile:
-      "http://res.cloudinary.com/dygl9cjyd/video/upload/v1717578382/uyjcbuo6ylxn8kweuc1o.mp4",
-    thubnail:
-      "http://res.cloudinary.com/dygl9cjyd/image/upload/v1717578383/r98lvufhxoqxudfjx586.jpg",
-    title: "amezing Video",
-    description: "this is amezing video website",
-    duration: 8.2,
-    views: 0,
-    isPublished: true,
-    createdAt: "2024-06-05T09:06:24.408Z",
-    ChhannalDetail: [
-      {
-        _id: "665d3bc7702e1c174341fbff",
-        username: "jayu",
-        fullName: "jayuPatel",
-        avatar:
-          "https://res.cloudinary.com/dygl9cjyd/image/upload/v1718210125/sj6svbmwgdbgxw0p7iv6.png",
-        subscriberCount: 2,
-      },
-    ],
-  };
+  // let i = {
+  //   _id: "66602a90cbb536a3ddcb99ef",
+  //   videoFile:
+  //     "http://res.cloudinary.com/dygl9cjyd/video/upload/v1717578382/uyjcbuo6ylxn8kweuc1o.mp4",
+  //   thubnail:
+  //     "http://res.cloudinary.com/dygl9cjyd/image/upload/v1717578383/r98lvufhxoqxudfjx586.jpg",
+  //   title: "amezing Video",
+  //   description: "this is amezing video website",
+  //   duration: 8.2,
+  //   views: 0,
+  //   isPublished: true,
+  //   createdAt: "2024-06-05T09:06:24.408Z",
+  //   ChhannalDetail: [
+  //     {
+  //       _id: "665d3bc7702e1c174341fbff",
+  //       username: "jayu",
+  //       fullName: "jayuPatel",
+  //       avatar:
+  //         "https://res.cloudinary.com/dygl9cjyd/image/upload/v1718210125/sj6svbmwgdbgxw0p7iv6.png",
+  //       subscriberCount: 2,
+  //     },
+  //   ],
+  // };
 
   useEffect(() => {
     fetchVideo();
@@ -183,7 +185,7 @@ const VideoDisplay = () => {
         }
       );
 
-      console.log(res.data.data[0]);
+      // console.log(res.data.data[0]);
       setVideo(res.data.data[0]);
     } catch (error) {
       if (error.response) {
@@ -194,6 +196,38 @@ const VideoDisplay = () => {
     }
   };
 
+  const addViews = async () => {
+    console.log("video is loaded");
+
+    setTimeout(async () => {
+      console.log("see the video", video._id);
+      try {
+        let res = await axios.post(
+          `${process.env.REACT_APP_SITE}api/v1/video/getVideo/${video._id}`,
+          {},
+          {
+            headers: {
+              Authorization: context.userToken,
+            },
+          }
+        );
+        console.log(res.data);
+      } catch (error) {
+        if (error.response) {
+          console.log(error.response.data);
+        } else {
+          console.log(error);
+        }
+      }
+    }, handleLoadedMetadata() / 5);
+  };
+
+  const handleLoadedMetadata = () => {
+    const video = videoEl.current;
+    if (!video) return;
+    console.log(`The video is ${video.duration / 5} seconds long.`);
+    return video.duration;
+  };
   //   console.log(response.data[0].videoFile);
 
   return (
@@ -206,7 +240,11 @@ const VideoDisplay = () => {
             className="rounded-2xl"
             controls
             controlsList="nodownload"
+            onDurationChange={() => addViews()}
             src={video?.videoFile}
+            autoPlay={true}
+            ref={videoEl}
+            onLoadedMetadata={handleLoadedMetadata}
           />
           <div className="ml-2 mt-2 w-full">
             <h1 className="text-2xl font-bold ">{video?.title}</h1>

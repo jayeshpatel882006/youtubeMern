@@ -166,29 +166,32 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 const refreshAccesToken = asyncHandler(async (req, res) => {
   const incomingRefreshToke = req.cookies.refreshToken || req.body.refreshToken;
+  // console.log(incomingRefreshToke);
   if (!incomingRefreshToke) {
-    throw new Apierror(401, "unuthorized requiest");
+    throw new Apierror(401, "Give Token To Move Further");
   }
 
   try {
-    const decodeToken = await jtw.verify(
+    const decodeToken = jtw.verify(
       incomingRefreshToke,
       process.env.REFRESH_TOKEN_SECRET
     );
 
-    const user = await User.findById(decodeToken?._id);
+    // console.log("decodeToken");
+    const user = await User.findById(decodeToken?._id).select("-password ");
     if (!user) {
-      throw new Apierror(401, "Invalid refresh token");
+      throw new Apierror(401, "Invalid refresh tokens");
     }
-    console.log(user);
-    console.log(
-      "usertoken :",
-      user.refreshToken,
-      " /n incoming :",
-      incomingRefreshToke
-    );
+    // console.log(user);
+    // console.log(
+    //   "usertoken :",
+    //   user.refreshToken,
+    //   " /n incoming :",
+    //   incomingRefreshToke
+    // );
 
-    if (user.refreshToken !== incomingRefreshToke) {
+    // console.log(user);
+    if (incomingRefreshToke !== user.refreshToken) {
       throw new Apierror(401, "refresh token is expired or used");
     }
 
@@ -200,6 +203,7 @@ const refreshAccesToken = asyncHandler(async (req, res) => {
     const { generatedrefreshToken, generatedaccessToken } =
       await generetAccessAndRefreshTokens(user._id);
 
+    // console.log(generatedrefreshToken);
     return res
       .status(200)
       .cookie("accessToken", generatedaccessToken, options)
@@ -208,6 +212,7 @@ const refreshAccesToken = asyncHandler(async (req, res) => {
         new ApiResponse(
           200,
           {
+            user: user,
             refreshToken: generatedrefreshToken,
             accessToken: generatedaccessToken,
           },
@@ -250,7 +255,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 
 const updateUserDetails = asyncHandler(async (req, res) => {
   const { fullName, email } = req.body;
-
+  console.log(fullName, email);
   if (!(fullName, email)) {
     throw new Apierror(400, "email and fullname is required");
   }

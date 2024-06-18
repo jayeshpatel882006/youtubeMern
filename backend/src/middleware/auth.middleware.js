@@ -16,8 +16,9 @@ export const verifyJwt = asyncHandler(async (req, _, next) => {
     if (!token) {
       throw new Apierror(401, "unauthorized request");
     }
-
     const decodeToken = jwt.verify(token, process.env.ACCSESS_TOKEN_SECRET);
+
+    // console.log("userfinding");
 
     const user = await User.findById(decodeToken?._id).select(
       "-password -refreshToken"
@@ -28,6 +29,7 @@ export const verifyJwt = asyncHandler(async (req, _, next) => {
     }
 
     req.user = user;
+    // console.log("Pass Auth middelwre");
     next();
   } catch (error) {
     throw new Apierror(401, error.message || "INVALID ACCESS ");

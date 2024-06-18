@@ -3,7 +3,7 @@ import fs from "fs";
 
 //I Added This dotenv hear because it give error when this is not present in this file
 import dotenv from "dotenv";
-import { log } from "console";
+// import { log } from "console";
 dotenv.config();
 
 
@@ -45,15 +45,15 @@ const deleteFromClodinery = async (publicId, type) => {
       const res = await cloudinary.uploader.destroy(publicId, {
         resource_type: "image",
       });
-      console.log(res);
+      // console.log(res);
     } else if (type == "video") {
       const res = await cloudinary.uploader.destroy(publicId, {
         resource_type: "video",
       });
-      console.log(res);
+      // console.log(res);
     }
 
-    console.log(publicId);
+    // console.log(publicId);
   } catch (error) {
     console.log("cloudinery deliting err : ", error);
   }

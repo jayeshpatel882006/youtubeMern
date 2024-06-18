@@ -21,72 +21,74 @@ const check = asyncHandler(async (req, res) => {
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
   //TODO: get all videos based on query, sort, pagination
-const pageNum = parseInt(page, 10);
-const limitNum = parseInt(limit, 10);
+  const pageNum = parseInt(page, 10);
+  const limitNum = parseInt(limit, 10);
 
-let filter = {};
-if (query) {
-  filter.title = { $regex: query, $options: "i" };
-}
-if (userId) {
-  // If userId is provided, add a filter to match the owner field to the provided userId
-  filter.owner = new mongoose.Types.ObjectId(userId);
-}
+  let filter = {};
+  if (query) {
+    filter.title = { $regex: query, $options: "i" };
+  }
+  if (userId) {
+    // If userId is provided, add a filter to match the owner field to the provided userId
+    filter.owner = new mongoose.Types.ObjectId(userId);
+  }
 
-let sort = {};
-if (sortBy && (sortType === "desc" || sortType === "asc")) {
-  sort[sortBy] = sortType === "desc" ? -1 : 1;
-}
+  let sort = {};
+  if (sortBy && (sortType === "desc" || sortType === "asc")) {
+    sort[sortBy] = sortType === "desc" ? -1 : 1;
+  }
 
-// let videos = await Video.find(filter)
-//   .sort(sort)
-//   .skip((pageNum - 1) * limitNum)
-//   .limit(limitNum);
+  // let videos = await Video.find(filter)
+  //   .sort(sort)
+  //   .skip((pageNum - 1) * limitNum)
+  //   .limit(limitNum);
 
-let videos = await Video.aggregate([
-  { $match: filter },
-  // { $sort: sort },
-  { $skip: (pageNum - 1) * limitNum },
-  { $limit: limit },
-  {
-    $lookup: {
-      from: "users", // The collection to join with
-      localField: "owner", // Field from the Video collection
-      foreignField: "_id", // Field from the User collection
-      as: "owner",
-      pipeline: [
-        {
-          $project: {
-            avatar: 1,
-            email: 1,
-            username: 1,
+  let videos = await Video.aggregate([
+    { $match: filter },
+    // { $sort: sort },
+    { $skip: (pageNum - 1) * limitNum },
+    { $limit: limit },
+    {
+      $lookup: {
+        from: "users", // The collection to join with
+        localField: "owner", // Field from the Video collection
+        foreignField: "_id", // Field from the User collection
+        as: "owner",
+        pipeline: [
+          {
+            $project: {
+              avatar: 1,
+              email: 1,
+              username: 1,
+            },
           },
-        },
-      ],
+        ],
+      },
     },
-  },
-  {
-    $unwind: "$owner",
-  },
-  {
-    $project: {
-      _id: 1,
-      videoFile: 1,
-      thubnail: 1,
-      title: 1,
-      description: 1,
-      duration: 1,
-      views: 1,
-      isPublished: 1,
-      createdAt: 1,
-      updatedAt: 1,
-      owner: 1,
+    {
+      $unwind: "$owner",
     },
-  },
-]);
-// console.log({ filter, sort, videos });
+    {
+      $project: {
+        _id: 1,
+        videoFile: 1,
+        thubnail: 1,
+        title: 1,
+        description: 1,
+        duration: 1,
+        views: 1,
+        isPublished: 1,
+        createdAt: 1,
+        updatedAt: 1,
+        owner: 1,
+      },
+    },
+  ]);
+  // console.log({ filter, sort, videos });
 
-return res.status(200).json(new ApiResponse(200, videos, "Video Fetchd"));
+  return res
+    .status(200)
+    .json(new ApiResponse(200, videos, `total: ${videos.length} Video Fetchd`));
 });
 
 const publishAVideo = asyncHandler(async (req, res) => {
@@ -251,18 +253,31 @@ const deleteVideo = asyncHandler(async (req, res) => {
       "we need VideoId to delete the video , video id is not Found"
     );
   }
+  let video = await Video.findById(videoId);
 
-  const deleted = await Video.findByIdAndDelete(videoId);
-  // const deleted = await Video.findById(videoId);
-  if (!deleted) {
+  // console.log(video);
+  if (!video) {
     throw new Apierror(500, " video is not exist or deleted  ");
   }
-  // console.log(deleted);
-  let videopublicId = deleted?.videoFile.split("/").pop().split(".")[0];
-  let thumbnailpublicId = deleted?.thubnail.split("/").pop().split(".")[0];
+  // console.log(video.owner, req.user._id, req.user._id.equals(video.owner));
+  if (!req.user._id.equals(video.owner)) {
+    throw new Apierror(
+      404,
+      "you can't delete This video , this is not your video "
+    );
+  }
+
+  let videopublicId = video?.videoFile.split("/").pop().split(".")[0];
+  let thumbnailpublicId = video?.thubnail.split("/").pop().split(".")[0];
+
+  // const deleted = await Video.deleteOne(videoId);
+  // // const deleted = await Video.findById(videoId);
+  // // console.log(deleted);
 
   await deleteFromClodinery(videopublicId, "video");
   await deleteFromClodinery(thumbnailpublicId, "image");
+
+  let deleted = await Video.findByIdAndDelete(videoId);
 
   return res
     .status(200)
@@ -301,12 +316,88 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
   }
 });
 
+const addView = asyncHandler(async (req, res) => {
+  const { videoId } = req.params;
+  if (!videoId) {
+    throw new Apierror(200, "VideoId Is required");
+  }
+
+  let updateView = await Video.findByIdAndUpdate(
+    videoId,
+    { $inc: { views: 1 } },
+    { new: true }
+  );
+  if (!updateView) {
+    throw new Apierror(200, "Video is not found");
+  }
+  res.status(200).json(new ApiResponse(200, updateView, "Added view to video"));
+});
+
+const updateThumbnail = asyncHandler(async (req, res) => {
+  const thumbnailPath = req.file?.path;
+  const { videoId } = req.params;
+  if (!thumbnailPath) {
+    throw new Apierror(400, "Thumbnail file is missing");
+  }
+  const video = await Video.findById(videoId);
+  // console.log(video.owner, req.user._id);
+  if (video.owner !== req.user._id) {
+    throw new Apierror(404, "Can't update , Its Private Video Of Another User");
+  }
+
+  const thumbnailcloud = await uploadToCloudinary(thumbnailPath);
+  console.log(thumbnailcloud);
+  if (!thumbnailcloud.url) {
+    throw new Apierror(
+      400,
+      "Error while uploading Avatar to cloudinary while updating it "
+    );
+  }
+
+  //   , {
+  //   $set: { thubnail: thumbnailcloud.url },
+  // });
+
+  // console.log("ffaef");
+  let oldthumbnailId = video?.thubnail.split("/").pop().split(".")[0];
+
+  await deleteFromClodinery(oldthumbnailId, "video");
+
+  return res.status(200).json(new ApiResponse(200, video, "Updated Thumbnail"));
+});
+
+const getCountofVideoofUser = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  if (!userId) {
+    throw new Apierror(400, "UserId is required");
+  }
+
+  let videocount = (await Video.find({ owner: userId })).length;
+
+  if (videocount == 0) {
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, videocount, "no videos found for this chhenel")
+      );
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, videocount, `this channel has ${videocount} video`)
+    );
+});
+
 export {
   deleteVideo,
   getAllVideos,
   getVideoById,
   togglePublishStatus,
   // updateVideo,
+  updateThumbnail,
+  getCountofVideoofUser,
+  addView,
   publishAVideo,
   check,
 };
