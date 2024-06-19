@@ -197,15 +197,59 @@ const getVideoById = asyncHandler(async (req, res) => {
             },
           },
           {
+            $addFields: {
+              isUserSubscribed: {
+                // $match: {
+                //   _id: req.user._id,
+                // }
+
+                $cond: {
+                  if: { $in: [req.user?._id, "$subscribers.subscriber"] },
+                  then: true,
+                  else: false,
+                },
+
+                // $gt: [
+                //   {
+                //     $size: {
+                //       $filter: {
+                //         input: "$subscribers",
+                //         as: "subscriber",
+                //         cond: {
+                //           $eq: ["$$subscriber.subscriber", req.user._id],
+                //         },
+                //       },
+                //       // $filter: {
+                //       //   input: "$subscribers",
+                //       //   as: "subscriber",
+                //       //   cond: {
+                //       //     $eq: [
+                //       //       "$$subscriber.user",
+                //       //       new mongoose.Types.ObjectId(req.user._id),
+                //       //     ],
+                //       //   },
+                //       // },
+                //     },
+                //   },
+                //   0,
+                // ],
+              },
+            },
+          },
+          {
             $project: {
               fullName: 1,
               username: 1,
               avatar: 1,
               subscriberCount: 1,
+              isUserSubscribed: 1,
             },
           },
         ],
       },
+    },
+    {
+      $unwind: "$ChhannalDetail",
     },
     {
       $project: {

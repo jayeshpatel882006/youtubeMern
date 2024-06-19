@@ -124,11 +124,10 @@ const Channel = () => {
           <div className="w-full">
             <img
               className="w-full p-3 rounded-3xl h-[250px] object-cover"
-              src={backImg}
-              onError={() =>
-                setBackImg(
-                  "https://yt3.googleusercontent.com/q7BE5w-MYDJyTMQWKwVmp98JvU7WqEzd99W-7I8CwJM3ixt-sQEeEKtlp1Xnho-42TCOsQt2=w2120-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj"
-                )
+              src={channel?.coverImage}
+              onError={(e) =>
+                (e.target.src =
+                  "https://yt3.googleusercontent.com/q7BE5w-MYDJyTMQWKwVmp98JvU7WqEzd99W-7I8CwJM3ixt-sQEeEKtlp1Xnho-42TCOsQt2=w2120-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj")
               }
               alt={channel?.username}
             />
@@ -139,6 +138,10 @@ const Channel = () => {
                 <img
                   className="h-[160px]   mr-3 w-[160px] rounded-full"
                   src={channel?.avatar}
+                  onError={(e) =>
+                    (e.target.src =
+                      "https://w7.pngwing.com/pngs/612/280/png-transparent-customer-user-userphoto-account-person-glyphs-icon.png")
+                  }
                 />
                 {isSubscribed == false ? (
                   <Button

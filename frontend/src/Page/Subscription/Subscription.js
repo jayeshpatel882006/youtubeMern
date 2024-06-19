@@ -74,6 +74,11 @@ const Subscription = () => {
     }
   };
 
+  const handleImageError = (e) => {
+    e.target.src =
+      "https://w7.pngwing.com/pngs/612/280/png-transparent-customer-user-userphoto-account-person-glyphs-icon.png";
+  };
+
   return (
     <div className="container mx-auto p-4 rounded-2xl bg-gray-800">
       <h1>Your Subscribed Channel</h1>
@@ -84,6 +89,7 @@ const Subscription = () => {
               <div className="flex gap-5">
                 <img
                   src={ite.avatar}
+                  onError={handleImageError}
                   className="h-[150px] w-[150px] rounded-full"
                 />
                 <div>

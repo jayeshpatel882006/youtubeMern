@@ -25,6 +25,7 @@ function App() {
     localStorage.getItem("refreshToken")
   );
   const [user, setUser] = useState();
+  const [subvideos, setSubVideo] = useState();
   const [showHeaderFooter, setShowHeaderFooter] = useState(true);
   const navigate = useNavigate();
 
@@ -122,6 +123,8 @@ function App() {
     isLogedin,
     userToken,
     user,
+    subvideos,
+    setSubVideo,
     fetchCurrentUser,
     handalLogin,
     setIsLogedin,
@@ -133,25 +136,27 @@ function App() {
 
   return (
     <Mycontext.Provider value={value}>
-      <div className="dark:bg-gray-900 h-full text-white">
+      <div className="dark:bg-gray-900 flex flex-col min-h-screen justify-between text-white">
         {showHeaderFooter == true && <Header />}
-        <Routes>
-          <Route exact={true} path="/" element={<Home />} />
-          <Route exact={true} path="/auth/login" element={<LoginSignup />} />
-          <Route exact={true} path="/video/:id" element={<VideoDisplay />} />
-          <Route exact={true} path="/user/setting" element={<Setting />} />
-          <Route exact={true} path="/user/activity" element={<Activity />} />
-          <Route
-            exact={true}
-            path="/user/subscription"
-            element={<Subscription />}
-          />
-          <Route
-            exact={true}
-            path="/channel/:channelId"
-            element={<Channel />}
-          />
-        </Routes>
+        <div className="flex-grow">
+          <Routes>
+            <Route exact={true} path="/" element={<Home />} />
+            <Route exact={true} path="/auth/login" element={<LoginSignup />} />
+            <Route exact={true} path="/video/:id" element={<VideoDisplay />} />
+            <Route exact={true} path="/user/setting" element={<Setting />} />
+            <Route exact={true} path="/user/activity" element={<Activity />} />
+            <Route
+              exact={true}
+              path="/user/subscription"
+              element={<Subscription />}
+            />
+            <Route
+              exact={true}
+              path="/channel/:channelId"
+              element={<Channel />}
+            />
+          </Routes>
+        </div>
         {/* <VideoDisplay /> */}
         {showHeaderFooter == true && <Footer />}
         {/* > */}

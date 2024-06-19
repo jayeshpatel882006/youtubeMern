@@ -85,7 +85,7 @@ const LoginSignup = () => {
           username: field.username,
         }
       );
-      //   console.log(res.data);
+        console.log(res.data);
       if (res.data.success == true) {
         // console.log(res.data.data);
         context.handalLogin(res.data.data);

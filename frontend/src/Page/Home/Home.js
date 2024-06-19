@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import { Link, UNSAFE_DataRouterContext } from "react-router-dom";
-import { formatDistanceToNow } from "date-fns";
 import axios from "axios";
 import { Button } from "@mui/material";
 import { Mycontext } from "../../App";
@@ -148,6 +147,7 @@ const Home = () => {
         });
 
         // console.log(res.data.data);
+        context.setSubVideo(res.data.data);
         setvideo(res.data.data);
       } catch (error) {
         if (error.response) {
