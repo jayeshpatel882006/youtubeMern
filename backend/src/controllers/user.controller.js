@@ -19,6 +19,13 @@ const generetAccessAndRefreshTokens = async (userId) => {
     // console.log(user);
     await user.save({ validateBeforeSave: false });
 
+    // console.log(
+    //   "generatedrefreshToken :",
+    //   generatedrefreshToken,
+    //   "generatedaccessToken :",
+    //   generatedaccessToken
+    // );
+
     return { generatedrefreshToken, generatedaccessToken };
   } catch (error) {
     throw new Apierror(
@@ -177,7 +184,7 @@ const refreshAccesToken = asyncHandler(async (req, res) => {
       process.env.REFRESH_TOKEN_SECRET
     );
 
-    // console.log("decodeToken");
+    // console.log(decodeToken);
     const user = await User.findById(decodeToken?._id).select("-password ");
     if (!user) {
       throw new Apierror(401, "Invalid refresh tokens");
@@ -190,7 +197,7 @@ const refreshAccesToken = asyncHandler(async (req, res) => {
     //   incomingRefreshToke
     // );
 
-    // console.log(user);
+    // console.log(user.refreshToken, incomingRefreshToke);
     if (incomingRefreshToke !== user.refreshToken) {
       throw new Apierror(401, "refresh token is expired or used");
     }

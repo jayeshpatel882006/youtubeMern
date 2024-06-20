@@ -35,8 +35,8 @@ function App() {
     setRefreshToken(localStorage.getItem("refreshToken"));
     // console.log(id);
 
+    fetchCurrentUser();
     if (id !== null && id.length !== 0) {
-      fetchCurrentUser();
       return setIsLogedin(true);
       //  navigate("/");
     } else if (isLogedin == false) {
@@ -50,16 +50,17 @@ function App() {
 
   const UPDATErefreshToken = async () => {
     try {
+      // console.log(refreshToken);
       let res = await axios.post(
         `${process.env.REACT_APP_SITE}api/v1/users/refreshtoken`,
         {
-          refreshToken: refreshToken,
+          refreshToken,
         }
       );
       // console.log("UPDATEREFRESHTOKEN ", res.data.data);
       if (res.data.data) {
         localStorage.setItem("refreshToken", res.data.data.refreshToken);
-        console.log(res.data.data.refreshToken, res.data.data.user);
+        // console.log(res.data.data.refreshToken, res.data.data.user);
         setRefreshToken(res.data.data.refreshToken);
         setUser(res.data.data.user);
         setToken(res.data.data.accessToken);
@@ -76,6 +77,7 @@ function App() {
 
   const fetchCurrentUser = async () => {
     try {
+      // console.log(userToken);
       let user = await axios.get(
         `${process.env.REACT_APP_SITE}api/v1/users/getcurrentuser`,
         {
@@ -91,8 +93,9 @@ function App() {
         ////geahuihik
         if (error.response.data.message == "jwt expired") {
           UPDATErefreshToken();
+          console.log(error.response.data);
         }
-        console.log(error.response.data);
+        // console.log(error.response.data);
       } else {
         console.log(error);
       }
@@ -100,19 +103,21 @@ function App() {
   };
 
   const handalLogout = () => {
+    setUser();
     setIsLogedin(false);
+    setToken("");
     window.localStorage.removeItem("_id");
     window.localStorage.removeItem("token");
     window.localStorage.removeItem("refreshToken");
 
-    setToken("");
     navigate("/auth/login");
   };
   const handalLogin = (data) => {
+    setUser(data.user);
     setIsLogedin(true);
     setToken(data.token);
-    console.log(data.user);
-    setUser(data.user);
+    setRefreshToken(data.user.refreshToken)
+    // console.log(data.user);
     window.localStorage.setItem("_id", data.user._id);
     window.localStorage.setItem("refreshToken", data.user.refreshToken);
     window.localStorage.setItem("token", data.token);
@@ -167,3 +172,9 @@ function App() {
 
 export default App;
 export { Mycontext };
+
+
+
+// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjYyYmQxYzJmYTYwMzJmMjUyNTJkMzYiLCJpYXQiOjE3MTg4OTgxNDcsImV4cCI6MTcxOTc2MjE0N30.KL6npGXEaVBwdsfwnJO0zir03ZAn_QydQfIV7us78GE
+
+// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjYyYmQxYzJmYTYwMzJmMjUyNTJkMzYiLCJlbWFpbCI6ImFAYS5jbyIsImZ1bGxOYW1lIjoia2FsdWthZnVuZGEiLCJ1c2VybmFtZSI6ImthbHUiLCJpYXQiOjE3MTg3Nzk3NTgsImV4cCI6MTcxODg2NjE1OH0.Z0pDwlT1aA0O4rIpO0e7Ebdu8mRvaMIcpDApNMz5SMk

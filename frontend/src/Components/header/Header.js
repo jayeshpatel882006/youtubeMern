@@ -16,7 +16,7 @@ const Header = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    console.log("context.isLogedin : ", context.isLogedin);
+    // console.log("context.isLogedin : ", context.isLogedin);
     if (context.isLogedin == false) {
       navigate("/auth/login");
     }

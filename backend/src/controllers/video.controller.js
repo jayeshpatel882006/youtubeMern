@@ -24,7 +24,8 @@ const getAllVideos = asyncHandler(async (req, res) => {
   const pageNum = parseInt(page, 10);
   const limitNum = parseInt(limit, 10);
 
-  let filter = {};
+  let filter = { isPublished: true };
+  // let filter = {};
   if (query) {
     filter.title = { $regex: query, $options: "i" };
   }
@@ -92,7 +93,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
 });
 
 const publishAVideo = asyncHandler(async (req, res) => {
-  const { title, description } = req.body;
+  const { title, description, isPublished } = req.body;
   // console.log(title, description);
   // TODO: get video, upload to cloudinary, create video
   //   console.log(title, description);
@@ -143,6 +144,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
     throw new Apierror(500, "thumbnail File Is not upload to clodinery");
   }
 
+  console.log(videoCloud.url, thumbnailCloud.url);
   const video = await Video.create({
     videoFile: videoCloud.url,
     thubnail: thumbnailCloud.url,
@@ -150,13 +152,20 @@ const publishAVideo = asyncHandler(async (req, res) => {
     description,
     duration: videoCloud.duration,
     owner: req.user._id,
+    isPublished: isPublished ? isPublished : false,
   });
   const user = req.user;
+  if (!video) {
+    let videopublicId = videoCloud.url.split("/").pop().split(".")[0];
+    let thumbnailpublicId = thumbnailCloud.url.split("/").pop().split(".")[0];
+    await deleteFromClodinery(videopublicId, "video");
+    await deleteFromClodinery(thumbnailpublicId, "image");
+    throw new Apierror(400, "Video is not Uploaded yet");
+  }
+  console.log(video);
   return res
     .status(200)
-    .json(
-      new ApiResponse(200, { video, user }, `Video uploaded Successfully}`)
-    );
+    .json(new ApiResponse(200, { video, user }, `Video uploaded Successfully`));
 });
 
 const getVideoById = asyncHandler(async (req, res) => {
@@ -433,6 +442,28 @@ const getCountofVideoofUser = asyncHandler(async (req, res) => {
     );
 });
 
+const getChannnelVideos = asyncHandler(async (req, res) => {
+  let user = req.user;
+
+  let video = await Video.aggregate([
+    {
+      $match: {
+        owner: user._id,
+      },
+    },
+  ]);
+  // console.log(video);
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        video,
+        `channel video fetchd total : ${video.length}`
+      )
+    );
+});
+
 export {
   deleteVideo,
   getAllVideos,
@@ -444,4 +475,5 @@ export {
   addView,
   publishAVideo,
   check,
+  getChannnelVideos,
 };

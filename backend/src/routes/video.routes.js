@@ -12,6 +12,7 @@ import {
   addView,
   getCountofVideoofUser,
   updateThumbnail,
+  getChannnelVideos,
 } from "../controllers/video.controller.js";
 
 const router = Router();
@@ -32,6 +33,7 @@ router.route("/upload").post(
   ]),
   publishAVideo
 );
+router.route("/channelowner").get(getChannnelVideos);
 router.route("/deleteVideo/:videoId").delete(deleteVideo);
 router
   .route("/updateThumbnail/:videoId")
@@ -39,5 +41,6 @@ router
 router.route("/getVideo/:videoId").get(getVideoById).post(addView);
 router.route("/toggalPublish/:videoId").post(togglePublishStatus);
 router.route("/getvideocount/:userId").get(getCountofVideoofUser);
+
 
 export default router;
