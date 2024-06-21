@@ -393,13 +393,13 @@ const updateThumbnail = asyncHandler(async (req, res) => {
     throw new Apierror(400, "Thumbnail file is missing");
   }
   const video = await Video.findById(videoId);
-  // console.log(video.owner, req.user._id);
-  if (video.owner !== req.user._id) {
+  // console.log(video.owner.equals(req.user._id));
+  if (!video.owner.equals(req.user._id)) {
     throw new Apierror(404, "Can't update , Its Private Video Of Another User");
   }
 
   const thumbnailcloud = await uploadToCloudinary(thumbnailPath);
-  console.log(thumbnailcloud);
+  // console.log(thumbnailcloud);
   if (!thumbnailcloud.url) {
     throw new Apierror(
       400,
@@ -414,7 +414,10 @@ const updateThumbnail = asyncHandler(async (req, res) => {
   // console.log("ffaef");
   let oldthumbnailId = video?.thubnail.split("/").pop().split(".")[0];
 
-  await deleteFromClodinery(oldthumbnailId, "video");
+  await deleteFromClodinery(oldthumbnailId, "image");
+  video.thubnail = thumbnailcloud.url;
+  console.log(video);
+  await video.save();
 
   return res.status(200).json(new ApiResponse(200, video, "Updated Thumbnail"));
 });

@@ -10,6 +10,8 @@ const Activity = () => {
   const [pusblishunpublish, setPublisunpublish] = useState(false);
   const [userVideo, setUserVideo] = useState();
   const context = useContext(Mycontext);
+  const [currVid, setCurrVid] = useState(null);
+  const [currthumb, setcurrThumb] = useState(null);
 
   const [details, setDetails] = useState({
     title: "",
@@ -18,6 +20,7 @@ const Activity = () => {
     thumbnail: null,
     video: null,
   });
+  const [updateModal, setUpdateModal] = useState(false);
 
   useEffect(() => {
     getUserChannelVideo();
@@ -34,9 +37,9 @@ const Activity = () => {
     e.preventDefault();
     // console.log(details);
     const formData = new FormData();
+    formData.append("thumbnail", details.thumbnail);
     formData.append("title", details.title);
     formData.append("description", details.description);
-    formData.append("thumbnail", details.thumbnail);
     formData.append("isPublished", details.isPublished);
     formData.append("videoFile", details.video);
 
@@ -62,12 +65,15 @@ const Activity = () => {
       //   }
 
       console.log(res.data);
-      // if (res.data.success == true) {
-      //   // context.setIsLogedin(true);
-      //   // navigate("/");
-      //   console.log(res.data);
-      //   // setScreen("login");
-      // }
+      if (res.data.success == true) {
+        setDetails({
+          title: "",
+          description: "",
+          isPublished: false,
+          thumbnail: null,
+          video: null,
+        });
+      }
 
       //   console.log(res.data);
     } catch (err) {
@@ -82,7 +88,6 @@ const Activity = () => {
   const handalPublishUnpublic = async (e, changedStatus, videoId) => {
     e.preventDefault();
     setPublisunpublish(changedStatus);
-    console.log(changedStatus, videoId);
     if (context.user !== undefined) {
       try {
         let res = await axios.post(
@@ -95,7 +100,7 @@ const Activity = () => {
           }
         );
 
-        console.log(res.data);
+        // console.log(res.data);
         getUserChannelVideo();
       } catch (error) {
         if (error.response) {
@@ -120,7 +125,7 @@ const Activity = () => {
             }
           );
 
-          console.log(res.data.data);
+          // console.log(res.data.data);
           // context.setSubVideo(res.data.data);
           setUserVideo(res.data.data);
         } catch (error) {
@@ -140,6 +145,89 @@ const Activity = () => {
     }
   };
 
+  const handalUpdateThumbnail = async (e) => {
+    e.preventDefault();
+    if (!details.thumbnail) return;
+    const formData = new FormData();
+    formData.append("thubnail", details.thumbnail);
+    console.log(currVid);
+    try {
+      const res = await axios.patch(
+        `${process.env.REACT_APP_SITE}api/v1/video/updateThumbnail/${currVid}`,
+        // email: field.email,
+        // password: field.password,
+        // fullName: field.fullname,
+        // username: field.username,
+        formData,
+        {
+          headers: {
+            Authorization: context.userToken,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log(res.data);
+      if (res.data.success == true) {
+        // context.setIsLogedin(true);
+        // navigate("/");
+        setCurrVid(null);
+
+        // console.log(res.data.data);
+        // if (prev._id === res.data.data._id) {
+        // }
+        setDetails({ ...details, thumbnail: null });
+        getUserChannelVideo();
+        setUpdateModal(false);
+      }
+
+      //   console.log(res.data);
+    } catch (err) {
+      if (err.response) {
+        console.log(err.response.data);
+      } else {
+        console.log(err);
+      }
+    }
+  };
+
+  const handalDeleteVideo = async (e, videoId) => {
+    e.preventDefault();
+    // console.log(videoId);
+
+    if (!confirm("Are You Want to delete This video")) {
+      return console.log("ok we are not deleet it");
+    }
+    try {
+      const res = await axios.delete(
+        `${process.env.REACT_APP_SITE}api/v1/video/deleteVideo/${videoId}`,
+        {
+          headers: {
+            Authorization: context.userToken,
+          },
+        }
+      );
+
+      console.log(res.data);
+      if (res.data.success == true) {
+        // context.setIsLogedin(true);
+        // navigate("/");
+
+        // console.log(res.data.data);
+        // if (prev._id === res.data.data._id) {
+        // }
+        getUserChannelVideo();
+      }
+
+      //   console.log(res.data);
+    } catch (err) {
+      if (err.response) {
+        console.log(err.response.data);
+      } else {
+        console.log(err);
+      }
+    }
+  };
   return (
     <div className="container p-3 rounded mx-auto h-full bg-gray-800">
       <div className="my-3">
@@ -395,6 +483,117 @@ const Activity = () => {
                     })}
                   </h3>
                 )}
+                <Button
+                  color="info"
+                  onClick={() => {
+                    setCurrVid(ite._id),
+                      setUpdateModal(true),
+                      setcurrThumb(ite.thubnail);
+                  }}
+                  variant="outlined"
+                >
+                  Update Thumbnail
+                </Button>
+                {/* Update Thumbnail MOdal */}
+                <div
+                  className={`${
+                    updateModal == true ? "block" : "hidden"
+                  } flex  fixed  top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-full max-h-full`}
+                >
+                  {/* <!--backDrop--!> */}
+                  <div
+                    id="authentication-modal"
+                    tabIndex="-1"
+                    className="bg-gray-800 opacity-[0.9] fixed w-full md:inset-0 h-full  "
+                    aria-hidden="true"
+                    onClick={() => {
+                      setCurrVid(ite._id), setUpdateModal(false);
+                    }}
+                  />
+                  <div className="relative mx-auto p-4 w-2/5  max-h-full">
+                    {/* <!-- Modal content --> */}
+                    <div className="relative bg-white w-full rounded-lg shadow dark:bg-gray-700">
+                      {/* <!-- Modal header --> */}
+                      <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                          Chnage Thumbnail
+                        </h3>
+                        <button
+                          onClick={() => {
+                            setCurrVid(ite._id), setUpdateModal(false);
+                          }}
+                          className="end-2.5  text-gray-400 bg-transparent hover:bg-gray-900 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                          //   data-modal-hide="authentication-modal"
+                        >
+                          <svg
+                            className="w-3 h-3"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 14 14"
+                          >
+                            <path
+                              stroke="currentColor"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                            />
+                          </svg>
+                          <span className="sr-only">Close modal</span>
+                        </button>
+                      </div>
+                      {/* <!-- Modal body --> */}
+                      <div className="p-4 md:p-5">
+                        <form
+                          className="space-y-4"
+                          onSubmit={(e) => {
+                            handalUpdateThumbnail(e);
+                          }}
+                        >
+                          <div>
+                            <img
+                              className="aspect-video w-full"
+                              src={currthumb}
+                            />
+                            <label
+                              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                              htmlFor="file_input"
+                            >
+                              Current thumbnail
+                            </label>
+                            <input
+                              className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                              aria-describedby="file_input_help"
+                              id="file_input"
+                              type="file"
+                              onChange={(e) =>
+                                setDetails({
+                                  ...details,
+                                  thumbnail: e.target.files[0],
+                                })
+                              }
+                            />
+                            {/* <p
+                              className="mt-1 text-sm text-gray-500 dark:text-gray-300"
+                              id="file_input_help"
+                            >
+                              SVG, PNG, JPG or GIF (MAX. 800x400px).
+                            </p> */}
+                          </div>
+
+                          <button
+                            type="submit"
+                            className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                          >
+                            Update Thumbnail
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Update Thumbnail MOdal Till hear */}
               </div>
               <div className="w-1/3 flex  justify-center">
                 <div className="flex flex-col justify-between items-center">
@@ -417,12 +616,14 @@ const Activity = () => {
                     </label>
                   </div>
 
-                  <div>
-                    <Button disabled color="info">
-                      Update
-                    </Button>
-                    <Button color="error">Delete</Button>
-                  </div>
+                  <Button
+                    onClick={(e) => {
+                      handalDeleteVideo(e, ite._id);
+                    }}
+                    color="error"
+                  >
+                    Delete Video
+                  </Button>
                 </div>
               </div>
             </div>
