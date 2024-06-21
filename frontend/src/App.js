@@ -12,6 +12,7 @@ import Channel from "./Page/channel/Channel";
 import Subscription from "./Page/Subscription/Subscription";
 import Setting from "./Page/setting/Setting";
 import Activity from "./Page/Activity/Activity";
+import Playlist from "./Page/Playlist/Playlist";
 
 const Mycontext = createContext();
 
@@ -116,7 +117,7 @@ function App() {
     setUser(data.user);
     setIsLogedin(true);
     setToken(data.token);
-    setRefreshToken(data.user.refreshToken)
+    setRefreshToken(data.user.refreshToken);
     // console.log(data.user);
     window.localStorage.setItem("_id", data.user._id);
     window.localStorage.setItem("refreshToken", data.user.refreshToken);
@@ -150,6 +151,7 @@ function App() {
             <Route exact={true} path="/video/:id" element={<VideoDisplay />} />
             <Route exact={true} path="/user/setting" element={<Setting />} />
             <Route exact={true} path="/user/activity" element={<Activity />} />
+            <Route exact={true} path="/user/playlist" element={<Playlist />} />
             <Route
               exact={true}
               path="/user/subscription"

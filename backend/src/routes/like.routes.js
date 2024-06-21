@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   getLikedVideos,
+  likeCountofVideo,
   toggleCommentLike,
   toggleTweetLike,
   toggleVideoLike,
@@ -15,5 +16,6 @@ router.route("/toggal/v/:videoId").post(toggleVideoLike);
 router.route("/toggal/c/:commentId").post(toggleCommentLike);
 router.route("/toggal/t/:tweetId").post(toggleTweetLike);
 router.route("/videos").get(getLikedVideos);
+router.route("/video/getlikes/:videoId").get(likeCountofVideo);
 
 export default router;

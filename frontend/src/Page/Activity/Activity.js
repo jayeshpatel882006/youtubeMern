@@ -73,6 +73,7 @@ const Activity = () => {
           thumbnail: null,
           video: null,
         });
+        setShowModal(false);
       }
 
       //   console.log(res.data);
@@ -296,10 +297,14 @@ const Activity = () => {
                   <div>
                     <label
                       htmlFor="title"
-                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                      className="block mb-0 text-sm font-medium text-gray-900 dark:text-white"
                     >
                       Title
                     </label>
+                    <p className="my-1 text-sm text-gray-500 dark:text-gray-300">
+                      please choose title and description waisly after that it
+                      can't be chnaged
+                    </p>
                     <input
                       type="text"
                       name="title"
@@ -458,11 +463,11 @@ const Activity = () => {
               key={index}
               className="w-full rounded-md flex justify-between p-2 gap-8 bg-gray-900 h-[200px]"
             >
-              <div className="w-1/3 ">
+              <div className="w-1/3 flex justify-center ">
                 <img
                   src={ite.thubnail}
                   // onMouseEnter={()=>}
-                  className="w-full h-full aspect-video object-cover"
+                  className="w-4/5 h-full aspect-video object-cover"
                 />{" "}
               </div>
               <div className="w-1/3">
@@ -470,14 +475,14 @@ const Activity = () => {
                 <h3 className="text-xl">{ite.description}</h3>
                 <h3 className="text-lg">{ite.views} views</h3>
                 <h3 className="text-lg">
-                  Created :
+                  Created :{" "}
                   {formatDistanceToNow(new Date(ite.createdAt), {
                     addSuffix: true,
                   })}
                 </h3>
                 {ite.updatedAt && (
                   <h3 className="text-lg">
-                    Updated :
+                    Updated :{" "}
                     {formatDistanceToNow(new Date(ite.updatedAt), {
                       addSuffix: true,
                     })}

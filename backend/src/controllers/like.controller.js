@@ -12,16 +12,25 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
   }
   let userId = req.user._id;
 
+  let oldLike = await Like.find({ video: videoId, likedBy: userId });
+
+  if (oldLike.length !== 0) {
+    // console.log(oldLike.length);
+
+    await Like.deleteOne({ video: videoId, likedBy: userId });
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, false, "video Disliked done"));
+  }
+
   const likedVideo = await Like.create({
     video: videoId,
     likedBy: userId,
   });
-
   //   console.log(userId);
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, likedVideo, "video liked done"));
+  return res.status(200).json(new ApiResponse(200, true, "video liked done"));
 });
 
 const toggleCommentLike = asyncHandler(async (req, res) => {
@@ -119,4 +128,43 @@ const getLikedVideos = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, likedVideo, "Fetchd liked video"));
 });
 
-export { getLikedVideos, toggleCommentLike, toggleTweetLike, toggleVideoLike };
+const likeCountofVideo = asyncHandler(async (req, res) => {
+  const { videoId } = req.params;
+
+  if (!videoId) {
+    throw new Apierror(500, "Video id is required !");
+  }
+
+  let liked = await Like.aggregate([
+    {
+      $match: {
+        video: new mongoose.Types.ObjectId(videoId),
+      },
+    },
+  ]);
+
+  if (liked.length == 0) {
+    return res
+      .status(200)
+      .json(new ApiResponse(200, 0, `Like Fetchd , total : ${liked.length}`));
+  }
+
+  // console.log(liked);
+  res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        liked.length,
+        `Like Fetchd , total : ${liked.length}`
+      )
+    );
+});
+
+export {
+  getLikedVideos,
+  toggleCommentLike,
+  toggleTweetLike,
+  toggleVideoLike,
+  likeCountofVideo,
+};

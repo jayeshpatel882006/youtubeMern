@@ -261,9 +261,30 @@ const getVideoById = asyncHandler(async (req, res) => {
       $unwind: "$ChhannalDetail",
     },
     {
+      $lookup: {
+        from: "likes",
+        foreignField: "video",
+        localField: "_id",
+        as: "likedAcc",
+      },
+    },
+    {
+      $addFields: {
+        isUserLiked: {
+          $cond: {
+            if: { $in: [req.user._id, "$likedAcc.likedBy"] },
+            then: true,
+            else: false,
+          },
+        },
+      },
+    },
+    {
       $project: {
         ChhannalDetail: 1,
+        isUserLiked: 1,
         createdAt: 1,
+        likedAcc: 1,
         views: 1,
         duration: 1,
         videoFile: 1,
@@ -282,9 +303,9 @@ const getVideoById = asyncHandler(async (req, res) => {
     );
   }
   if (video[0].isPublished === true) {
+    // console.log(video);
     return res.status(200).json(new ApiResponse(200, video, "Video Fetchd"));
   } else {
-    // console.log(video);
     return res
       .status(200)
       .json(new ApiResponse(200, {}, "Video is not publishde yet"));
@@ -428,7 +449,8 @@ const getCountofVideoofUser = asyncHandler(async (req, res) => {
     throw new Apierror(400, "UserId is required");
   }
 
-  let videocount = (await Video.find({ owner: userId })).length;
+  let videocount = (await Video.find({ owner: userId, isPublished: true }))
+    .length;
 
   if (videocount == 0) {
     return res

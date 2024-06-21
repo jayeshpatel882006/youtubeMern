@@ -1,9 +1,11 @@
-import { Button } from "@mui/material";
+import { Button, IconButton } from "@mui/material";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import { Mycontext } from "../../App";
 import { formatDistanceToNow } from "date-fns";
+import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 
 const VideoDisplay = () => {
   let { id } = useParams();
@@ -152,6 +154,37 @@ const VideoDisplay = () => {
   //   ],
   // };
 
+  const fetchLike = async () => {
+    try {
+      let res = await axios.get(
+        `${process.env.REACT_APP_SITE}api/v1/like/video/getlikes/${id}`,
+        {
+          headers: {
+            Authorization: context.userToken,
+          },
+        }
+      );
+
+      console.log(res.data.data);
+
+      return res.data.data;
+      // setVideo({
+      //   ...video,
+      //   like: res.data.data,
+      //   // avatar: res.data.data.avatar,
+      //   // fullName: res.data.data.fullName,
+      //   // username: res.data.data.username,
+      //   // _id: res.data.data._id,
+      // });
+    } catch (error) {
+      if (error.response) {
+        console.log(error.response.data);
+      } else {
+        console.log(error);
+      }
+    }
+  };
+
   const handalFetchChannel = async () => {
     try {
       let res = await axios.get(
@@ -209,7 +242,10 @@ const VideoDisplay = () => {
 
       // console.log(res.data);
       // console.log(res.data.data[0]);
-      setVideo(res.data.data[0]);
+      let like = await fetchLike();
+      // console.log(res.data.data[0]);
+      setVideo({ ...res.data.data[0], Like: like });
+      fetchLike();
       setChannelDetail({
         ...channelDetail,
         subscriber: res.data.data[0]?.ChhannalDetail.subscriberCount,
@@ -306,6 +342,31 @@ const VideoDisplay = () => {
     // }
   };
 
+  const toggalLikeVideo = async () => {
+    try {
+      let response = await axios.post(
+        `${process.env.REACT_APP_SITE}api/v1/like/toggal/v/${id}`,
+        {},
+        {
+          headers: {
+            Authorization: context.userToken,
+          },
+        }
+      );
+      if (response.data.success == true) {
+        let like = await fetchLike();
+        console.log("res:", response.data);
+        setVideo({ ...video, isUserLiked: response.data.data, Like: like });
+      }
+    } catch (error) {
+      if (error.response) {
+        console.log(error.response.data);
+      } else {
+        console.log(error);
+      }
+    }
+  };
+
   return (
     <>
       <div className="videoDisplay flex ">
@@ -324,43 +385,77 @@ const VideoDisplay = () => {
           />
           <div className="ml-2 mt-2 w-full">
             <h1 className="text-2xl font-bold ">{video?.title}</h1>
-            <div className="flex mt-3 items-center gap-5">
-              <div className="flex gap-3 items-center">
-                <Link to={`/channel/${channelDetail.username}`}>
-                  <img
-                    className="rounded-full w-[40px] h-[40px]"
-                    src={channelDetail.avatar}
-                  />
-                </Link>
-                <div>
-                  <h2 className="font-bold ml-1">
-                    <Link to={`/channel/${channelDetail.username}`}>
-                      {channelDetail.username}
-                    </Link>
-                  </h2>
-                  <h2>{channelDetail.subscriber} Subscriber</h2>
+            <div className="wholeLine flex mt-3 justify-between items-center gap-5">
+              <div className="inner flex mt-3 items-center gap-5">
+                <div className="flex gap-3 items-center">
+                  <Link to={`/channel/${channelDetail.username}`}>
+                    <img
+                      className="rounded-full w-[40px] h-[40px]"
+                      src={channelDetail.avatar}
+                    />
+                  </Link>
+                  <div>
+                    <h2 className="font-bold ml-1">
+                      <Link to={`/channel/${channelDetail.username}`}>
+                        {channelDetail.username}
+                      </Link>
+                    </h2>
+                    <h2>{channelDetail.subscriber} Subscriber</h2>
+                  </div>
                 </div>
+                <Button
+                  onClick={() => toggalSubscribeChannel(channelDetail._id)}
+                  style={
+                    channelDetail.subscribe == true
+                      ? {
+                          background: "white",
+                          fontWeight: "bold",
+                          color: "#000",
+                          borderRadius: "30px",
+                        }
+                      : {
+                          background: "red",
+                          color: "white",
+                          fontWeight: "600",
+                          borderRadius: "30px",
+                        }
+                  }
+                >
+                  {channelDetail.subscribe == true ? "Subscribed" : "Subscribe"}
+                </Button>
               </div>
-              <Button
-                onClick={() => toggalSubscribeChannel(channelDetail._id)}
-                style={
-                  channelDetail.subscribe == true
-                    ? {
-                        background: "white",
-                        fontWeight: "bold",
-                        color: "#000",
-                        borderRadius: "30px",
-                      }
-                    : {
-                        background: "red",
-                        color: "white",
-                        fontWeight: "600",
-                        borderRadius: "30px",
-                      }
-                }
-              >
-                {channelDetail.subscribe == true ? "Subscribed" : "Subscribe"}
-              </Button>
+              <div className="bg-gray-950 rounded-full p-1  mr-5">
+                {video?.isUserLiked ? (
+                  <IconButton
+                    onClick={() => toggalLikeVideo()}
+                    className="flex gap-2 "
+                    size="small"
+                    color="inherit"
+                  >
+                    <ThumbUpIcon />
+                    {video?.Like == 0 ? "" : video?.Like}
+                  </IconButton>
+                ) : (
+                  <IconButton
+                    onClick={() => toggalLikeVideo()}
+                    className="flex gap-2 "
+                    size="small"
+                    color="inherit"
+                  >
+                    <ThumbUpOffAltIcon />
+                    {video?.Like == 0 ? "" : video?.Like}
+                  </IconButton>
+                )}
+
+                {/* <IconButton
+                  className="flex gap-2 "
+                  size="small"
+                  color="inherit"
+                >
+                  <ThumbUpOffAltIcon />
+                  {video?.Like == 0 ? "" : video?.like}
+                </IconButton> */}
+              </div>
             </div>
             <div className="mt-4 p-3 bg-slate-800 rounded-md">
               <div className="flex gap-3 font-bold">

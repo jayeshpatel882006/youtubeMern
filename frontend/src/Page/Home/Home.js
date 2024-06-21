@@ -160,7 +160,7 @@ const Home = () => {
     <div className="  mx-5 bg-gray-800 p-6 m-10 rounded-md">
       <div className="latest">
         <h3 className="text-2xl font-bold mb-3">Latest</h3>
-        <div className=" mx-auto flex justify-center  flex-wrap   h-auto">
+        <div className=" mx-auto flex  justify-center  flex-wrap   h-auto">
           {video?.map((ite, index) => (
             <VideoCard ite={ite} index={index} />
           ))}

@@ -1,9 +1,11 @@
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Mycontext } from "../../App";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import { Button } from "@mui/material";
+import { formatDistanceToNow } from "date-fns";
+import FiberManualRecord from "@mui/icons-material/FiberManualRecord";
 
 const Channel = () => {
   const { channelId } = useParams();
@@ -11,6 +13,7 @@ const Channel = () => {
   const [channel, setChannel] = useState();
   let [backImg, setBackImg] = useState();
   let [isSubscribed, setIsSubscribed] = useState();
+  const [channelVideos, setChannelVideos] = useState(null);
 
   //   console.log(channel);
 
@@ -28,8 +31,31 @@ const Channel = () => {
     subscriberCount: 2,
     channelSubscibedToCount: 2,
     isSubscribed: false,
+    videos: 200,
   };
-
+  let fackVideo = [
+    {
+      _id: "66602a90cbb536a3ddcb99ef",
+      videoFile:
+        "http://res.cloudinary.com/dygl9cjyd/video/upload/v1717578382/uyjcbuo6ylxn8kweuc1o.mp4",
+      thubnail:
+        "http://res.cloudinary.com/dygl9cjyd/image/upload/v1717578383/r98lvufhxoqxudfjx586.jpg",
+      title: "amezing Video",
+      description: "this is amezing video website",
+      duration: 8.2,
+      views: 21,
+      isPublished: true,
+      owner: {
+        _id: "6668084a29c67df5d8fee3ce",
+        username: "aaa",
+        email: "kaxaf81276@kernuo.com",
+        avatar:
+          "http://res.cloudinary.com/dygl9cjyd/image/upload/v1718093899/foit6k5stngdtijbri8t.jpg",
+      },
+      createdAt: "2024-06-05T09:06:24.408Z",
+      updatedAt: "2024-06-18T12:40:43.176Z",
+    },
+  ];
   useEffect(() => {
     fetchChannel();
   }, []);
@@ -44,11 +70,36 @@ const Channel = () => {
           },
         }
       );
+
       if (response.data.success == true) {
+        //fetch videos of channel
+        let videocount;
+        try {
+          let videosCount = await axios.get(
+            `${process.env.REACT_APP_SITE}api/v1/video/getvideocount/${response.data.data._id}`,
+            {
+              headers: {
+                Authorization: context.userToken,
+              },
+            }
+          );
+          // console.log(videosCount.data.data);
+          if (videosCount.data.success == true) {
+            videocount = videosCount.data.data;
+          }
+        } catch (error) {
+          if (error.response.data) {
+            console.log(error.response.data);
+          } else {
+            console.log(error);
+          }
+        }
         // console.log(response.data);
-        setChannel(response.data.data);
+        const CHANNEL = response.data.data;
+        setChannel({ ...CHANNEL, videos: videocount });
         setBackImg(response.data.data.coverImage);
         setIsSubscribed(response.data.data.isSubscribed);
+        fetchChannelVideos(CHANNEL._id);
       }
     } catch (error) {
       if (error.response) {
@@ -117,6 +168,29 @@ const Channel = () => {
     }
   };
 
+  const fetchChannelVideos = async (chhId) => {
+    try {
+      let videos = await axios.get(
+        `${process.env.REACT_APP_SITE}api/v1/video?userId=${chhId}`,
+        {
+          headers: {
+            Authorization: context.userToken,
+          },
+        }
+      );
+      if (videos.data.success == true) {
+        // console.log(videos.data.data);
+        setChannelVideos(videos.data.data);
+      }
+    } catch (error) {
+      if (error.response.data) {
+        console.log(error.response.data);
+      } else {
+        console.log(error);
+      }
+    }
+  };
+
   return (
     <>
       {channel && (
@@ -175,11 +249,63 @@ const Channel = () => {
                 <h1 className="text-xl  ">
                   @{channel?.username}{" "}
                   <FiberManualRecordIcon style={{ fontSize: "7px" }} />{" "}
-                  {channel?.subscriberCount} subscribers
+                  {channel?.subscriberCount} subscribers{" "}
+                  <FiberManualRecordIcon style={{ fontSize: "7px" }} />{" "}
+                  {channel?.videos} videos
                 </h1>
               </div>
             </div>
           </div>
+
+          {channelVideos?.length !== 0 && (
+            <div className="container p-3  ">
+              <h3 className="text-2xl font-bold">Channel Videos</h3>
+              <div className="my-3 flex flex-col gap-3">
+                {channelVideos?.map((ite, index) => (
+                  // <Link>
+                  <Link to={`/video/${ite._id}`}>
+                    <div
+                      className="w-full flex gap-2 h-[200px] hover:bg-slate-900 rounded-xl"
+                      key={index}
+                    >
+                      <div className="w-1/3 overflow-hidden">
+                        <img
+                          className="h-full w-full object-cover aspect-video rounded-md"
+                          src={ite.thubnail}
+                        />
+                      </div>
+                      <div className="w-2/3 flex flex-col justify-between">
+                        <div>
+                          <h3 className="text-xl capitalize font-semibold">
+                            {ite.title}
+                          </h3>
+                          <h3 className="text-xl capitalize ">
+                            {ite.description}
+                          </h3>
+                          <div className="flex items-center font-semibold gap-2 h-[40px] my-2">
+                            <div className="h-[40px] w-[40px]">
+                              <img
+                                className="rounded-full object-cover aspect-square"
+                                src={ite.owner.avatar}
+                              />
+                            </div>
+                            <h3 className="text-xl  ">{ite.owner.username}</h3>
+                          </div>
+                          <h3 className="text-sm capitalize flex items-center gap-2">
+                            {ite.views} views{" "}
+                            <FiberManualRecord style={{ fontSize: "7px" }} />
+                            {formatDistanceToNow(new Date(ite.createdAt), {
+                              addSuffix: true,
+                            })}
+                          </h3>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </>
