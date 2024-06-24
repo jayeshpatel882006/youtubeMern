@@ -23,6 +23,12 @@ const createPlaylist = asyncHandler(async (req, res) => {
     throw new Apierror(400, "Name And Description is required");
   }
 
+  let isPlaylist = await Playlist.find({ name: name });
+
+  if (isPlaylist.length !== 0) {
+    console.log(isPlaylist);
+    throw new Apierror(500, "Playlist is alredy exist with this name");
+  }
   const cretedplaylist = await Playlist.create({
     name,
     description: description.length == 0 ? "" : description,
@@ -51,9 +57,68 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
       },
     },
     {
+      $lookup: {
+        from: "users",
+        foreignField: "_id",
+        localField: "owner",
+        as: "owner",
+        pipeline: [
+          {
+            $project: {
+              username: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $addFields: {
+        FirstVideo: {
+          $cond: {
+            if: { $isArray: "$videos" },
+            then: {
+              $arrayElemAt: ["$videos", 0],
+            },
+            else: "NA",
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "videos",
+        foreignField: "_id",
+        localField: "FirstVideo",
+        as: "thumbnail",
+        pipeline: [
+          {
+            $project: {
+              thubnail: 1,
+              _id: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $unwind: "$owner",
+    },
+    {
+      $unwind: {
+        path: "$thumbnail",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
       $project: {
         owner: 1,
         name: 1,
+        // videos: 1,
+        // thumbnail: 1,
+        thumbnail: { $ifNull: ["$thumbnail.thubnail", null] },
+        videoId: { $ifNull: ["$thumbnail._id", null] },
+        updatedAt: 1,
+        createdAt: 1,
         description: 1,
         numberOfVideo: {
           $cond: {
@@ -118,6 +183,8 @@ const getPlaylistById = asyncHandler(async (req, res) => {
               thubnail: 1,
               title: 1,
               owner: 1,
+              createdAt: 1,
+              views: 1,
             },
           },
         ],
@@ -166,7 +233,7 @@ const getPlaylistById = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, playlist, "Playlist Fetchd Successfully"));
+    .json(new ApiResponse(200, playlist[0], "Playlist Fetchd Successfully"));
 });
 
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
@@ -189,7 +256,7 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
   if (!addvideo || addvideo == null) {
     throw new Apierror(
       400,
-      "something went wrong while fetching the credential off video and playlist"
+      "something went wrong while fetching the credential of video and playlist"
     );
   }
   let checkowner = checkOwner(req.user._id, addvideo.owner);
@@ -315,6 +382,30 @@ const updatePlaylist = asyncHandler(async (req, res) => {
   res.json(result);
 });
 
+const getUserPlaylistsName = asyncHandler(async (req, res) => {
+  let userId = req.user._id;
+
+  // let playlist = await Playlist.find({ owner: userId });
+  let playlist = await Playlist.aggregate([
+    {
+      $match: {
+        owner: userId,
+      },
+    },
+    {
+      $project: {
+        name: 1,
+      },
+    },
+  ]);
+
+  if (!playlist) {
+    throw new Apierror(500, "not any playlist  ");
+  }
+
+  res.status(200).json(new ApiResponse(200, playlist, "user Playlist name"));
+});
+
 export {
   addVideoToPlaylist,
   updatePlaylist,
@@ -323,4 +414,5 @@ export {
   getPlaylistById,
   getUserPlaylists,
   createPlaylist,
+  getUserPlaylistsName,
 };

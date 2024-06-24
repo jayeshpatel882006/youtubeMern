@@ -1,18 +1,19 @@
 import { createContext, useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
-
+import axios from "axios";
 import "./App.css";
+
 import Footer from "./Components/footer/Footer";
 import Header from "./Components/header/Header";
 import LoginSignup from "./Page/Login-Signup/LoginSignup";
 import VideoDisplay from "./Page/videoDisplay/VideoDisplay";
 import Home from "./Page/Home/Home";
-import axios from "axios";
 import Channel from "./Page/channel/Channel";
 import Subscription from "./Page/Subscription/Subscription";
 import Setting from "./Page/setting/Setting";
 import Activity from "./Page/Activity/Activity";
 import Playlist from "./Page/Playlist/Playlist";
+import UserPlaylist from "./Page/UserPlaylist/UserPlaylist";
 
 const Mycontext = createContext();
 
@@ -152,6 +153,11 @@ function App() {
             <Route exact={true} path="/user/setting" element={<Setting />} />
             <Route exact={true} path="/user/activity" element={<Activity />} />
             <Route exact={true} path="/user/playlist" element={<Playlist />} />
+            <Route
+              exact={true}
+              path="/user/playlist/:playlistId"
+              element={<UserPlaylist />}
+            />
             <Route
               exact={true}
               path="/user/subscription"
