@@ -17,6 +17,7 @@ const UserPlaylist = () => {
 
   const fetchPlaylist = async () => {
     try {
+      context.setLoading(true);
       let Playlist = await axios.get(
         `${process.env.REACT_APP_SITE}api/v1/playlist/${playlistId}`,
         {
@@ -27,6 +28,7 @@ const UserPlaylist = () => {
       );
       console.log(Playlist.data.data);
       setplaylist(Playlist.data.data);
+      context.setLoading(false);
     } catch (error) {
       if (error.response) {
         ////geahuihik
@@ -51,6 +53,7 @@ const UserPlaylist = () => {
     }
 
     try {
+      context.setLoading(true);
       let Playlist = await axios.delete(
         `${process.env.REACT_APP_SITE}api/v1/playlist/${playlist._id}`,
         {
@@ -61,6 +64,7 @@ const UserPlaylist = () => {
       );
       console.log(Playlist.data.data);
       navigate("/user/playlist");
+      context.setLoading(false);
     } catch (error) {
       if (error.response) {
         ////geahuihik
@@ -81,6 +85,7 @@ const UserPlaylist = () => {
     }
 
     try {
+      context.setLoading(true);
       let Playlist = await axios.patch(
         `${process.env.REACT_APP_SITE}api/v1/playlist/remove/${videoId}/${playlist._id}`,
         {},
@@ -92,6 +97,7 @@ const UserPlaylist = () => {
       );
       //   console.log(Playlist.data.data);
       fetchPlaylist(Playlist.data.data);
+      context.setLoading(false);
     } catch (error) {
       if (error.response) {
         ////geahuihik

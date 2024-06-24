@@ -34,6 +34,7 @@ const Setting = () => {
       alert("New Password And Reapeted Password Is Not Same");
     } else {
       try {
+        context.setLoading(true);
         let response = await axios.post(
           `${process.env.REACT_APP_SITE}api/v1/users/changePassword`,
           {
@@ -50,8 +51,15 @@ const Setting = () => {
           console.log(response.data);
           alert("Password Changed Successfully");
           setPassmodel(false);
+          setPassword({
+            oldPassword: "",
+            newPassword: "",
+            repeated: "",
+          });
         }
+        context.setLoading(false);
       } catch (error) {
+        context.setLoading(false);
         if (error.response) {
           console.log(error.response.data);
           alert(error.response.data.message);
@@ -65,6 +73,7 @@ const Setting = () => {
   const handalChnageAvatar = async (e) => {
     e.preventDefault();
     // console.log(photo);
+
     if (photo == null) {
       console.log("ProfilePhoto IS Required");
       alert("Please Select One Photo !");
@@ -73,6 +82,7 @@ const Setting = () => {
     const formData = new FormData();
     formData.append("avatar", photo);
     try {
+      context.setLoading(true);
       let response = await axios.patch(
         `${process.env.REACT_APP_SITE}api/v1/users/updateuseravatar`,
         formData,
@@ -88,7 +98,9 @@ const Setting = () => {
         setavatarmodel(false);
         context.fetchCurrentUser();
       }
+      context.setLoading(false);
     } catch (error) {
+      context.setLoading(false);
       if (error.response) {
         console.log(error.response.data);
         alert(error.response.data.message);
@@ -108,6 +120,7 @@ const Setting = () => {
     const formData = new FormData();
     formData.append("coverImage", cover);
     try {
+      context.setLoading(true);
       let response = await axios.patch(
         `${process.env.REACT_APP_SITE}api/v1/users/updatecoverimage`,
         formData,
@@ -123,7 +136,9 @@ const Setting = () => {
         setcovermodel(false);
         context.fetchCurrentUser();
       }
+      context.setLoading(false);
     } catch (error) {
+      context.setLoading(false);
       if (error.response) {
         console.log(error.response.data);
         alert(error.response.data.message);
@@ -145,6 +160,7 @@ const Setting = () => {
     formData.append("fullName", details.fullname);
     formData.append(" email", details.email);
     try {
+      context.setLoading(true);
       let response = await axios.patch(
         `${process.env.REACT_APP_SITE}api/v1/users/updateuserdetails`,
         {
@@ -163,7 +179,9 @@ const Setting = () => {
         setDetailmodel(false);
         context.fetchCurrentUser();
       }
+      context.setLoading(false);
     } catch (error) {
+      context.setLoading(false);
       if (error.response) {
         console.log(error.response.data);
         alert(error.response.data.message);
@@ -194,7 +212,7 @@ const Setting = () => {
           <div
             className={`${
               passModel == true ? "block" : "hidden"
-            } flex  fixed  top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-full max-h-full`}
+            } flex  fixed  top-0 right-0 left-0 z-40 justify-center items-center w-full md:inset-0 h-full max-h-full`}
           >
             {/* <!--backDrop--!> */}
             <div
@@ -349,7 +367,7 @@ const Setting = () => {
           <div
             className={`${
               avatarModel == true ? "block" : "hidden"
-            } flex  fixed  top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-full max-h-full`}
+            } flex  fixed  top-0 right-0 left-0 z-40 justify-center items-center w-full md:inset-0 h-full max-h-full`}
           >
             {/* <!--backDrop--!> */}
             <div
@@ -444,7 +462,7 @@ const Setting = () => {
           <div
             className={`${
               coverModel == true ? "block" : "hidden"
-            } flex  fixed  top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-full max-h-full`}
+            } flex  fixed  top-0 right-0 left-0 z-40 justify-center items-center w-full md:inset-0 h-full max-h-full`}
           >
             {/* <!--backDrop--!> */}
             <div
@@ -548,7 +566,7 @@ const Setting = () => {
           <div
             className={`${
               detailModel == true ? "block" : "hidden"
-            } flex  fixed  top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-full max-h-full`}
+            } flex  fixed  top-0 right-0 left-0 z-40 justify-center items-center w-full md:inset-0 h-full max-h-full`}
           >
             {/* <!--backDrop--!> */}
             <div

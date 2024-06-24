@@ -15,6 +15,7 @@ const Subscription = () => {
 
   const fetchChannel = async () => {
     try {
+      context.setLoading(true);
       let response = await axios.get(
         `${process.env.REACT_APP_SITE}api/v1/subscriptions/u/subscribedchannel`,
         {
@@ -29,6 +30,7 @@ const Subscription = () => {
         // setBackImg(response.data.data.coverImage);
         // setIsSubscribed(response.data.data.isSubscribed);
       }
+      context.setLoading(false);
     } catch (error) {
       if (error.response) {
         console.log(error.response.data);
@@ -45,6 +47,7 @@ const Subscription = () => {
     if (confirm(`Are You want to UnSunscribe ${name}`) == true) {
       // console.log("You pressed OK!");
       try {
+        context.setLoading(true);
         let response = await axios.post(
           `${process.env.REACT_APP_SITE}api/v1/subscriptions/c/${channelId}`,
           {},
@@ -63,6 +66,7 @@ const Subscription = () => {
           // setBackImg(response.data.data.coverImage);
           // setIsSubscribed(response.data.data.isSubscribed);
         }
+        context.setLoading(false);
       } catch (error) {
         //   setIsSubscribed(isSubscribed);
         if (error.response) {

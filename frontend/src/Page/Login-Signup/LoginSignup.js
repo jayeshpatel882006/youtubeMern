@@ -75,8 +75,9 @@ const LoginSignup = () => {
     if (field.username.length == 0 && field.email.length == 0) {
       return console.log("username or email is needed");
     }
-
+    
     try {
+      context.setLoading(true);
       const res = await axios.post(
         `${process.env.REACT_APP_SITE}api/v1/users/login`,
         {
@@ -85,14 +86,16 @@ const LoginSignup = () => {
           username: field.username,
         }
       );
-        console.log(res.data);
+      console.log(res.data);
       if (res.data.success == true) {
         // console.log(res.data.data);
         context.handalLogin(res.data.data);
         navigate("/");
+        context.setLoading(false);
       }
     } catch (err) {
       console.log(err.response.data);
+      // context.setLoading(false);
     }
   };
   return (

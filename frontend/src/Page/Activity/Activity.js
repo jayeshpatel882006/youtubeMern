@@ -46,6 +46,7 @@ const Activity = () => {
     // console.log(formData);
 
     try {
+      context.setLoading(true);
       const res = await axios.post(
         `${process.env.REACT_APP_SITE}api/v1/video/upload`,
         // email: field.email,
@@ -74,6 +75,7 @@ const Activity = () => {
           video: null,
         });
         setShowModal(false);
+        context.setLoading(false);
       }
 
       //   console.log(res.data);
@@ -91,6 +93,7 @@ const Activity = () => {
     setPublisunpublish(changedStatus);
     if (context.user !== undefined) {
       try {
+        context.setLoading(true);
         let res = await axios.post(
           `${process.env.REACT_APP_SITE}api/v1/video/toggalPublish/${videoId}`,
           {},
@@ -100,7 +103,7 @@ const Activity = () => {
             },
           }
         );
-
+        context.setLoading(false);
         // console.log(res.data);
         getUserChannelVideo();
       } catch (error) {
@@ -117,6 +120,7 @@ const Activity = () => {
     try {
       if (context.user !== undefined) {
         try {
+          context.setLoading(true);
           let res = await axios.get(
             `${process.env.REACT_APP_SITE}api/v1/video/channelowner`,
             {
@@ -129,6 +133,7 @@ const Activity = () => {
           // console.log(res.data.data);
           // context.setSubVideo(res.data.data);
           setUserVideo(res.data.data);
+          context.setLoading(false);
         } catch (error) {
           if (error.response) {
             console.log(error.response.data);
@@ -153,6 +158,7 @@ const Activity = () => {
     formData.append("thubnail", details.thumbnail);
     console.log(currVid);
     try {
+      context.setLoading(true);
       const res = await axios.patch(
         `${process.env.REACT_APP_SITE}api/v1/video/updateThumbnail/${currVid}`,
         // email: field.email,
@@ -181,7 +187,7 @@ const Activity = () => {
         getUserChannelVideo();
         setUpdateModal(false);
       }
-
+      context.setLoading(false);
       //   console.log(res.data);
     } catch (err) {
       if (err.response) {
@@ -200,6 +206,7 @@ const Activity = () => {
       return console.log("ok we are not deleet it");
     }
     try {
+      context.setLoading(true);
       const res = await axios.delete(
         `${process.env.REACT_APP_SITE}api/v1/video/deleteVideo/${videoId}`,
         {
@@ -219,6 +226,7 @@ const Activity = () => {
         // }
         getUserChannelVideo();
       }
+      context.setLoading(false);
 
       //   console.log(res.data);
     } catch (err) {
@@ -247,7 +255,7 @@ const Activity = () => {
         <div
           className={`${
             showModal == true ? "block" : "hidden"
-          } flex  fixed  top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-full max-h-full`}
+          } flex  fixed  top-0 right-0 left-0 z-40  justify-center items-center w-full md:inset-0 h-full max-h-full`}
         >
           {/* <!--backDrop--!> */}
           <div
@@ -503,7 +511,7 @@ const Activity = () => {
                 <div
                   className={`${
                     updateModal == true ? "block" : "hidden"
-                  } flex  fixed  top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-full max-h-full`}
+                  } flex  fixed  top-0 right-0 left-0 z-40 justify-center items-center w-full md:inset-0 h-full max-h-full`}
                 >
                   {/* <!--backDrop--!> */}
                   <div

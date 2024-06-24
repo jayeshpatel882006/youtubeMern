@@ -137,6 +137,7 @@ const Home = () => {
     // console.log(context.user);
     if (context.user !== undefined) {
       try {
+        context.setLoading(true);
         let res = await axios.get(`${process.env.REACT_APP_SITE}api/v1/video`, {
           headers: {
             Authorization: context.userToken,
@@ -146,7 +147,9 @@ const Home = () => {
         // console.log(res.data.data);
         context.setSubVideo(res.data.data);
         setvideo(res.data.data);
+        context.setLoading(false);
       } catch (error) {
+        // context.setLoading(false)
         if (error.response) {
           console.log(error.response.data);
         } else {

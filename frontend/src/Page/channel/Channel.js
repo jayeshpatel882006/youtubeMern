@@ -62,6 +62,7 @@ const Channel = () => {
 
   const fetchChannel = async () => {
     try {
+      context.setLoading(true);
       let response = await axios.get(
         `${process.env.REACT_APP_SITE}api/v1/users/channel/${channelId}`,
         {
@@ -87,6 +88,7 @@ const Channel = () => {
           if (videosCount.data.success == true) {
             videocount = videosCount.data.data;
           }
+          context.setLoading(false);
         } catch (error) {
           if (error.response.data) {
             console.log(error.response.data);
@@ -114,6 +116,7 @@ const Channel = () => {
     // console.log(channel._id);
     let channelId = channel._id;
     try {
+      context.setLoading(true);
       let response = await axios.post(
         `${process.env.REACT_APP_SITE}api/v1/subscriptions/c/${channelId}`,
         {},
@@ -131,6 +134,7 @@ const Channel = () => {
         // setBackImg(response.data.data.coverImage);
         // setIsSubscribed(response.data.data.isSubscribed);
       }
+      context.setLoading(false);
     } catch (error) {
       setIsSubscribed(isSubscribed);
       if (error.response) {
@@ -143,6 +147,7 @@ const Channel = () => {
 
   const getSubscriber = async (channelId) => {
     try {
+      context.setLoading(true);
       let response = await axios.get(
         `${process.env.REACT_APP_SITE}api/v1/subscriptions/c/${channelId}`,
         {
@@ -158,6 +163,7 @@ const Channel = () => {
 
         setChannel({ ...channel, subscriberCount: response.data.message });
       }
+      context.setLoading(false);
     } catch (error) {
       setIsSubscribed(isSubscribed);
       if (error.response) {
@@ -170,6 +176,7 @@ const Channel = () => {
 
   const fetchChannelVideos = async (chhId) => {
     try {
+      context.setLoading(true);
       let videos = await axios.get(
         `${process.env.REACT_APP_SITE}api/v1/video?userId=${chhId}`,
         {
@@ -182,6 +189,7 @@ const Channel = () => {
         // console.log(videos.data.data);
         setChannelVideos(videos.data.data);
       }
+      context.setLoading(true);
     } catch (error) {
       if (error.response.data) {
         console.log(error.response.data);

@@ -23,7 +23,6 @@ const VideoDisplay = () => {
   const [comments, setComments] = useState();
   const [page, setPage] = useState(2);
   const [userComments, setUserComments] = useState("");
-  const [deleteDrop, setDeleteDrop] = useState(false);
   const [channelDetail, setChannelDetail] = useState({
     subscribe: false,
     subscriber: 0,
@@ -92,6 +91,7 @@ const VideoDisplay = () => {
   const fetchsubVideo = async () => {
     // console.log(context.user);
     try {
+      context.setLoading(true);
       let res = await axios.get(`${process.env.REACT_APP_SITE}api/v1/video`, {
         headers: {
           Authorization: context.userToken,
@@ -99,6 +99,7 @@ const VideoDisplay = () => {
       });
 
       setSubVideo(res.data.data);
+      context.setLoading(false);
       // console.log(res.data.data);
     } catch (error) {
       if (error.response) {
@@ -197,6 +198,7 @@ const VideoDisplay = () => {
 
   const handalFetchChannel = async () => {
     try {
+      context.setLoading(true);
       let res = await axios.get(
         `${process.env.REACT_APP_SITE}api/v1/users/channel/${channelDetail.username}`,
         {
@@ -217,6 +219,7 @@ const VideoDisplay = () => {
         // username: res.data.data.username,
         // _id: res.data.data._id,
       });
+      context.setLoading(false);
     } catch (error) {
       if (error.response) {
         console.log(error.response.data);
@@ -238,6 +241,7 @@ const VideoDisplay = () => {
   const fetchVideo = async () => {
     // console.log(context.userToken);
     try {
+      context.setLoading(true);
       if (!id) {
         return console.log("Id is required");
       }
@@ -258,6 +262,7 @@ const VideoDisplay = () => {
       fetchLike();
       getPlaylistname();
       fetchComments();
+      context.setLoading(false);
       setChannelDetail({
         ...channelDetail,
         subscriber: res.data.data[0]?.ChhannalDetail.subscriberCount,
@@ -294,6 +299,7 @@ const VideoDisplay = () => {
     //       }
     //     );
     //     console.log(res.data);
+
     //   } catch (error) {
     //     if (error.response) {
     //       console.log(error.response.data);
@@ -402,6 +408,7 @@ const VideoDisplay = () => {
   const handalAddVideoToPlaylist = async (e) => {
     e.preventDefault();
     try {
+      context.setLoading(true);
       let playlist = await axios.patch(
         `${process.env.REACT_APP_SITE}api/v1/playlist/add/${id}/${selectedPlaylist}`,
         {},
@@ -414,6 +421,7 @@ const VideoDisplay = () => {
       console.log(playlist.data.data);
       // console.log(selectedPlaylist);
       setPlaylistModal(false);
+      context.setLoading(false);
     } catch (error) {
       if (error.response) {
         console.log(error.response.data);
@@ -444,6 +452,7 @@ const VideoDisplay = () => {
         console.log("page not ");
         setComments(Comments.data.data);
       } else if (pagenarion) {
+        context.setLoading(true);
         console.log("page :", page);
         Comments = await axios.get(
           `${process.env.REACT_APP_SITE}api/v1/comment/${id}?page=${page}`,
@@ -459,6 +468,7 @@ const VideoDisplay = () => {
           console.log("no new Comments");
           return;
         }
+        context.setLoading(false);
         console.log(Comments.data);
         setComments((prevComments) => [...prevComments, ...newComments]);
         setPage(page + 1);
@@ -636,7 +646,7 @@ const VideoDisplay = () => {
                   <div
                     className={`${
                       playlistModal == true ? "block" : "hidden"
-                    } flex  fixed  top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-full max-h-full`}
+                    } flex  fixed  top-0 right-0 left-0 z-40 justify-center items-center w-full md:inset-0 h-full max-h-full`}
                   >
                     {/* <!--backDrop--!> */}
                     <div
