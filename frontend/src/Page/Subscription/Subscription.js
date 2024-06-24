@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { Mycontext } from "../../App";
 import axios from "axios";
 
+import { toast } from "react-toastify";
+
 const Subscription = () => {
   const context = useContext(Mycontext);
 
@@ -60,6 +62,17 @@ const Subscription = () => {
         if (response.data.success == true) {
           // setIsSubscribed(!isSubscribed);
           console.log(response.data);
+          toast.success(response.data.message, {
+            position: "top-right",
+            autoClose: 1700,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
+
           fetchChannel();
           // getSubscriber(channelId);
           // setChannel(response.data.data);

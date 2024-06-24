@@ -6,6 +6,8 @@ import { formatDistanceToNow } from "date-fns";
 import FiberManualRecord from "@mui/icons-material/FiberManualRecord";
 import { Button } from "@mui/material";
 
+import { toast } from "react-toastify";
+
 const UserPlaylist = () => {
   const { playlistId } = useParams();
   const navigate = useNavigate();
@@ -62,7 +64,19 @@ const UserPlaylist = () => {
           },
         }
       );
-      console.log(Playlist.data.data);
+
+      toast.error(Playlist.data.message, {
+        position: "top-right",
+        autoClose: 1700,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+
+      console.log(Playlist.data);
       navigate("/user/playlist");
       context.setLoading(false);
     } catch (error) {
@@ -96,6 +110,18 @@ const UserPlaylist = () => {
         }
       );
       //   console.log(Playlist.data.data);
+
+      toast.info(Playlist.data.message, {
+        position: "top-right",
+        autoClose: 1700,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+
       fetchPlaylist(Playlist.data.data);
       context.setLoading(false);
     } catch (error) {
@@ -165,7 +191,7 @@ const UserPlaylist = () => {
                           onClick={() => handalDeleteVideoFromVideo(ite._id)}
                           color="error"
                         >
-                          Deleet This video
+                          Remove This video
                         </Button>
                       </div>
                     </div>

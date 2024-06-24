@@ -6,6 +6,8 @@ import axios from "axios";
 import { Mycontext } from "../../App";
 import { useNavigate } from "react-router-dom";
 
+import { toast } from "react-toastify";
+
 const LoginSignup = () => {
   const context = useContext(Mycontext);
   const navigate = useNavigate();
@@ -75,7 +77,7 @@ const LoginSignup = () => {
     if (field.username.length == 0 && field.email.length == 0) {
       return console.log("username or email is needed");
     }
-    
+
     try {
       context.setLoading(true);
       const res = await axios.post(
@@ -94,7 +96,22 @@ const LoginSignup = () => {
         context.setLoading(false);
       }
     } catch (err) {
-      console.log(err.response.data);
+      context.setLoading(false);
+      if (err.response) {
+        toast.error(err.response.data.message, {
+          position: "top-right",
+          autoClose: 1700,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+        console.log(err.response.data);
+      } else {
+        console.log(err);
+      }
       // context.setLoading(false);
     }
   };

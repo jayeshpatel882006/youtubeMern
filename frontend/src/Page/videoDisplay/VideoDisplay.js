@@ -8,7 +8,8 @@ import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import TurnedInNotIcon from "@mui/icons-material/TurnedInNot";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+
+import { toast } from "react-toastify";
 
 const VideoDisplay = () => {
   let { id } = useParams();
@@ -236,7 +237,7 @@ const VideoDisplay = () => {
       // console.log("fetch Sub video");
       fetchsubVideo();
     }
-  }, []);
+  }, [id]);
 
   const fetchVideo = async () => {
     // console.log(context.userToken);
@@ -334,6 +335,31 @@ const VideoDisplay = () => {
       if (response.data.success == true) {
         // setIsSubscribed(!isSubscribed);
         // console.log(response.data.data);
+
+        if (response.data.message == "Subscribed successfully") {
+          toast.success(response.data.message, {
+            position: "top-right",
+            autoClose: 1700,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
+        } else {
+          toast.info(response.data.message, {
+            position: "top-right",
+            autoClose: 1700,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
+        }
+
         handalFetchChannel();
         // setChannelDetail()
         // setsubscribe(!subscribe)
@@ -373,8 +399,31 @@ const VideoDisplay = () => {
       );
       if (response.data.success == true) {
         let like = await fetchLike();
-        console.log("res:", response.data);
+        // console.log("res:", response.data);
         setVideo({ ...video, isUserLiked: response.data.data, Like: like });
+        if (response.data.data == true) {
+          toast.success("Video Liked", {
+            position: "top-right",
+            autoClose: 1700,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
+        } else {
+          toast.info("Video Disliked", {
+            position: "top-right",
+            autoClose: 1700,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
+        }
       }
     } catch (error) {
       if (error.response) {
@@ -418,11 +467,22 @@ const VideoDisplay = () => {
           },
         }
       );
-      console.log(playlist.data.data);
+      // console.log(playlist.data.data);
       // console.log(selectedPlaylist);
       setPlaylistModal(false);
+      toast.success("Video added to playlist", {
+        position: "top-right",
+        autoClose: 1700,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
       context.setLoading(false);
     } catch (error) {
+      context.setLoading(false);
       if (error.response) {
         console.log(error.response.data);
         if (
@@ -430,6 +490,16 @@ const VideoDisplay = () => {
           "video is already added to the playlist"
         ) {
           setPlaylistModal(false);
+          toast.info(error.response.data.message, {
+            position: "top-right",
+            autoClose: 1700,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
         }
       } else {
         console.log(error);
@@ -449,11 +519,11 @@ const VideoDisplay = () => {
             },
           }
         );
-        console.log("page not ");
+        // console.log("page not ");
         setComments(Comments.data.data);
       } else if (pagenarion) {
         context.setLoading(true);
-        console.log("page :", page);
+        // console.log("page :", page);
         Comments = await axios.get(
           `${process.env.REACT_APP_SITE}api/v1/comment/${id}?page=${page}`,
           {
@@ -490,7 +560,7 @@ const VideoDisplay = () => {
       return console.log("add somthing to comments");
     }
 
-    console.log(userComments);
+    // console.log(userComments);
     try {
       let Comments = await axios.post(
         `${process.env.REACT_APP_SITE}api/v1/comment/${id}`,
@@ -504,16 +574,26 @@ const VideoDisplay = () => {
       // console.log(Comments.data);
       // fetchComments();
       let newComment = Comments.data.data;
-      console.log(context.user);
+      // console.log(context.user);
       newComment.owner = {
         avatar: context.user.avatar,
         _id: context.user._id,
         username: context.user.username,
       };
-      console.log(newComment);
-      console.log(comments);
+      // console.log(newComment);
+      // console.log(comments);
       setComments([newComment, ...comments]);
       setUserComments("");
+      toast.success("Comment added ", {
+        position: "top-right",
+        autoClose: 1700,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
     } catch (error) {
       if (error.response) {
         console.log(error.response.data);
@@ -540,6 +620,16 @@ const VideoDisplay = () => {
             prevComments.filter((comment) => comment._id !== commentId)
           )
         );
+      toast.error("Comment deleted ", {
+        position: "top-right",
+        autoClose: 1700,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
       // if (Comments.data.data.deletedCount == 1) {
       // }
       // fetchComments();
@@ -636,13 +726,28 @@ const VideoDisplay = () => {
                   className="flex gap-2 "
                   size="small"
                   color="inherit"
-                  onClick={() => setPlaylistModal(true)}
+                  // onClick={() => console.log("s")}
+                  onClick={() => {
+                    if (playlist?.length !== 0) {
+                      setPlaylistModal(true);
+                    } else {
+                      toast.error("no playlist found", {
+                        position: "top-right",
+                        autoClose: 1700,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "dark",
+                      });
+                    }
+                  }}
                 >
                   <TurnedInNotIcon />
                 </IconButton>
-
                 {/* start modal */}
-                {playlist?.length > 0 && (
+                {playlist?.length !== 0 && (
                   <div
                     className={`${
                       playlistModal == true ? "block" : "hidden"

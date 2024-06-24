@@ -1,9 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { Button } from "@mui/material";
 import axios from "axios";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { Mycontext } from "../../App";
 import { formatDistanceToNow } from "date-fns";
+import { toast } from "react-toastify";
 
 const Activity = () => {
   const [showModal, setShowModal] = useState(false);
@@ -12,6 +13,7 @@ const Activity = () => {
   const context = useContext(Mycontext);
   const [currVid, setCurrVid] = useState(null);
   const [currthumb, setcurrThumb] = useState(null);
+  const toastId = useRef(null);
 
   const [details, setDetails] = useState({
     title: "",
@@ -30,12 +32,32 @@ const Activity = () => {
     if (confirm("Are you want to close upload video  process ? ")) {
       // console.log("close");
       setShowModal(false);
+      toast.error("Video is not uploaded", {
+        position: "top-right",
+        autoClose: 1700,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
     }
   };
 
   const handalUploadVideo = async (e) => {
     e.preventDefault();
     // console.log(details);
+    toast.info("Uploading......", {
+      position: "top-right",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
     const formData = new FormData();
     formData.append("thumbnail", details.thumbnail);
     formData.append("title", details.title);
@@ -76,12 +98,32 @@ const Activity = () => {
         });
         setShowModal(false);
         context.setLoading(false);
+        toast.success(res.data.message, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
       }
 
       //   console.log(res.data);
     } catch (err) {
       if (err.response) {
         console.log(err.response.data);
+        toast.error(err.response.data.message, {
+          position: "top-right",
+          autoClose: 1700,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
       } else {
         console.log(err);
       }
@@ -103,6 +145,17 @@ const Activity = () => {
             },
           }
         );
+        // console.log(res.data.message);
+        toast.info(res.data.message, {
+          position: "top-right",
+          autoClose: 1700,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
         context.setLoading(false);
         // console.log(res.data);
         getUserChannelVideo();
@@ -185,6 +238,17 @@ const Activity = () => {
         // }
         setDetails({ ...details, thumbnail: null });
         getUserChannelVideo();
+        // console.log(res.data);
+        toast.info(res.data.message, {
+          position: "top-right",
+          autoClose: 1700,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
         setUpdateModal(false);
       }
       context.setLoading(false);
@@ -192,6 +256,16 @@ const Activity = () => {
     } catch (err) {
       if (err.response) {
         console.log(err.response.data);
+        // toast.info(res.data.message, {
+        //   position: "top-right",
+        //   autoClose: 1700,
+        //   hideProgressBar: false,
+        //   closeOnClick: true,
+        //   pauseOnHover: true,
+        //   draggable: true,
+        //   progress: undefined,
+        //   theme: "dark",
+        // });
       } else {
         console.log(err);
       }
@@ -224,6 +298,16 @@ const Activity = () => {
         // console.log(res.data.data);
         // if (prev._id === res.data.data._id) {
         // }
+        toast.info(res.data.message, {
+          position: "top-right",
+          autoClose: 1700,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
         getUserChannelVideo();
       }
       context.setLoading(false);

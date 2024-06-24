@@ -7,6 +7,8 @@ import { Button } from "@mui/material";
 import { formatDistanceToNow } from "date-fns";
 import FiberManualRecord from "@mui/icons-material/FiberManualRecord";
 
+import { toast } from "react-toastify";
+
 const Channel = () => {
   const { channelId } = useParams();
   const context = useContext(Mycontext);
@@ -72,6 +74,7 @@ const Channel = () => {
         }
       );
 
+      context.setLoading(false);
       if (response.data.success == true) {
         //fetch videos of channel
         let videocount;
@@ -88,7 +91,6 @@ const Channel = () => {
           if (videosCount.data.success == true) {
             videocount = videosCount.data.data;
           }
-          context.setLoading(false);
         } catch (error) {
           if (error.response.data) {
             console.log(error.response.data);
@@ -127,9 +129,34 @@ const Channel = () => {
         }
       );
       if (response.data.success == true) {
-        setIsSubscribed(!isSubscribed);
         // console.log(response.data);
         getSubscriber(channelId);
+        console.log(response.data.message);
+        if (response.data.message == "Subscribed successfully") {
+          toast.success(response.data.message, {
+            position: "top-right",
+            autoClose: 1700,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
+        } else {
+          toast.info(response.data.message, {
+            position: "top-right",
+            autoClose: 1700,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
+        }
+
+        setIsSubscribed(!isSubscribed);
         // setChannel(response.data.data);
         // setBackImg(response.data.data.coverImage);
         // setIsSubscribed(response.data.data.isSubscribed);
@@ -189,7 +216,7 @@ const Channel = () => {
         // console.log(videos.data.data);
         setChannelVideos(videos.data.data);
       }
-      context.setLoading(true);
+      context.setLoading(false);
     } catch (error) {
       if (error.response.data) {
         console.log(error.response.data);
@@ -271,7 +298,7 @@ const Channel = () => {
               <div className="my-3 flex flex-col gap-3">
                 {channelVideos?.map((ite, index) => (
                   // <Link>
-                  <Link to={`/video/${ite._id}`}>
+                  <Link key={index} to={`/video/${ite._id}`}>
                     <div
                       className="w-full flex gap-2 h-[200px] hover:bg-slate-900 rounded-xl"
                       key={index}

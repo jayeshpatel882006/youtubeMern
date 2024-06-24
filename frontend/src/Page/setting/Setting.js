@@ -3,6 +3,7 @@ import axios from "axios";
 import React, { useContext, useState } from "react";
 import { Mycontext } from "../../App";
 // import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Setting = () => {
   const context = useContext(Mycontext);
@@ -49,6 +50,16 @@ const Setting = () => {
         );
         if (response.data.success == true) {
           console.log(response.data);
+          toast.success(response.data.message, {
+            position: "top-right",
+            autoClose: 1700,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
           alert("Password Changed Successfully");
           setPassmodel(false);
           setPassword({
@@ -62,6 +73,16 @@ const Setting = () => {
         context.setLoading(false);
         if (error.response) {
           console.log(error.response.data);
+          toast.error(error.response.data.message, {
+            position: "top-right",
+            autoClose: 1700,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
           alert(error.response.data.message);
         } else {
           console.log(error);
@@ -94,8 +115,18 @@ const Setting = () => {
       );
       if (response.data.success == true) {
         console.log(response.data);
-        alert("Photo Changed Successfully");
+        // alert("Photo Changed Successfully");
         setavatarmodel(false);
+        toast.success(response.data.message, {
+          position: "top-right",
+          autoClose: 1700,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
         context.fetchCurrentUser();
       }
       context.setLoading(false);
@@ -103,6 +134,16 @@ const Setting = () => {
       context.setLoading(false);
       if (error.response) {
         console.log(error.response.data);
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 1700,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
         alert(error.response.data.message);
       } else {
         console.log(error);
@@ -132,7 +173,17 @@ const Setting = () => {
       );
       if (response.data.success == true) {
         console.log(response.data);
-        alert("CoverImage Updated Successfully");
+        // alert("CoverImage Updated Successfully");
+        toast.success(response.data.message, {
+          position: "top-right",
+          autoClose: 1700,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
         setcovermodel(false);
         context.fetchCurrentUser();
       }
@@ -141,7 +192,17 @@ const Setting = () => {
       context.setLoading(false);
       if (error.response) {
         console.log(error.response.data);
-        alert(error.response.data.message);
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 1700,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+        // alert(error.response.data.message);
       } else {
         console.log(error);
       }
@@ -175,7 +236,17 @@ const Setting = () => {
       );
       if (response.data.success == true) {
         // console.log(response.data);
-        alert("Detals  Updated Successfully");
+        // alert("Detals  Updated Successfully");
+        toast.success(response.data.message, {
+          position: "top-right",
+          autoClose: 1700,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
         setDetailmodel(false);
         context.fetchCurrentUser();
       }
@@ -184,7 +255,17 @@ const Setting = () => {
       context.setLoading(false);
       if (error.response) {
         console.log(error.response.data);
-        alert(error.response.data.message);
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 1700,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+        // alert(error.response.data.message);
       } else {
         console.log(error);
       }

@@ -4,6 +4,8 @@ import { Mycontext } from "../../App";
 import PlaylistCard from "../../Components/PlaylistCard/PlaylistCard";
 import { Button } from "@mui/material";
 
+import { toast } from "react-toastify";
+
 const Playlist = () => {
   const [playlist, setPlaylist] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -27,7 +29,7 @@ const Playlist = () => {
           },
         }
       );
-      console.log(Playlist.data.data);
+      // console.log(Playlist.data.data);
       setPlaylist(Playlist.data.data);
       context.setLoading(false);
     } catch (error) {
@@ -57,8 +59,20 @@ const Playlist = () => {
           },
         }
       );
-      console.log(Playlist.data.data);
+      console.log(Playlist.data);
       // setPlaylist(Playlist.data.data);
+
+      toast.success(Playlist.data.message, {
+        position: "top-right",
+        autoClose: 1700,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+
       setShowModal(false);
       fetchPlaylist();
       context.setLoading(false);
@@ -90,13 +104,33 @@ const Playlist = () => {
           },
         }
       );
-      console.log(Playlist.data.data);
+      // console.log(Playlist.data.data);
+      toast.error(Playlist.data.message, {
+        position: "top-right",
+        autoClose: 1700,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
       fetchPlaylist();
       context.setLoading(false);
     } catch (error) {
       if (error.response) {
         ////geahuihik
         if (error.response) {
+          // toast.error(error.data.message, {
+          //   position: "top-right",
+          //   autoClose: 1700,
+          //   hideProgressBar: false,
+          //   closeOnClick: true,
+          //   pauseOnHover: true,
+          //   draggable: true,
+          //   progress: undefined,
+          //   theme: "dark",
+          // });
           console.log(error.response.data);
         }
         // console.log(error.response.data);
@@ -362,7 +396,6 @@ const Playlist = () => {
       )}
     </>
   );
-  
 };
 
 export default Playlist;

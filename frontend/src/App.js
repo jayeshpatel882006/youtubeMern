@@ -15,6 +15,10 @@ import Activity from "./Page/Activity/Activity";
 import Playlist from "./Page/Playlist/Playlist";
 import UserPlaylist from "./Page/UserPlaylist/UserPlaylist";
 
+
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const Mycontext = createContext();
 
 function App() {
@@ -95,6 +99,7 @@ function App() {
       setUser(user.data.data);
       setLoading(false);
     } catch (error) {
+      setLoading(false);
       if (error.response) {
         ////geahuihik
         if (error.response.data.message == "jwt expired") {
@@ -115,7 +120,16 @@ function App() {
     window.localStorage.removeItem("_id");
     window.localStorage.removeItem("token");
     window.localStorage.removeItem("refreshToken");
-
+    toast.error("Logged out", {
+      position: "top-right",
+      autoClose: 1700,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
     navigate("/auth/login");
   };
   const handalLogin = (data) => {
@@ -127,6 +141,16 @@ function App() {
     window.localStorage.setItem("_id", data.user._id);
     window.localStorage.setItem("refreshToken", data.user.refreshToken);
     window.localStorage.setItem("token", data.token);
+    toast.success("Logged in Succeessfully", {
+      position: "top-right",
+      autoClose: 1700,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
     setShowHeaderFooter(true);
   };
 
@@ -151,6 +175,20 @@ function App() {
     <Mycontext.Provider value={value}>
       <div className="dark:bg-gray-900 flex flex-col min-h-screen justify-between text-white">
         {showHeaderFooter == true && <Header />}
+        <div>
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss={false}
+            draggable
+            pauseOnHover
+            theme="dark"
+          />
+        </div>
         <div
           className={`${
             loading !== true ? "hidden" : ""
@@ -159,7 +197,7 @@ function App() {
           <div
             id="authentication-modal"
             tabIndex="-1"
-            className="bg-gray-800 opacity-[0.9] fixed w-full md:inset-0 h-full overflow-hidden  "
+            className="bg-gray-800 opacity-[0.9] fixed w-full md:inset-0 h-full overflow-hidden "
             aria-hidden="true"
             // onClick={() => setShowModal(false)}
           />
